@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Welcome to InWARDS Landing Page</h2>
+    <h2 class="title">Welcome to InWARDS Landing Page</h2>
     <div class="container">
       <div id="map"></div>
     </div>
