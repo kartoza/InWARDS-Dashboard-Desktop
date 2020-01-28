@@ -1,6 +1,10 @@
-# inwards-vue-electron
+# InWARDS-vue-electron
 
 > An application written in Electron.js for visualising stream flow conditions
+
+#### Pre Build
+
+Make sure you have npm installed : https://docs.npmjs.com/downloading-and-installing-node-js-and-npm
 
 #### Build Setup
 
