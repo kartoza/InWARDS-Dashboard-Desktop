@@ -11,6 +11,11 @@ export default new Router({
       component: require('@/components/MapLandingPage').default
     },
     {
+      path: '/dashboard',
+      name: 'dashboard-page',
+      component: require('@/components/Dashboard').default
+    },
+    {
       path: '*',
       redirect: '/'
     }

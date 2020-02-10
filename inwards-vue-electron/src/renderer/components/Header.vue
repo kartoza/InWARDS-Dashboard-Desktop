@@ -1,0 +1,25 @@
+<template>
+  <div>
+    <div class="pos-f-t">
+      <nav class="navbar navbar-dark bg-dark">
+        <h3>InWARDS Dashboard</h3>
+        <button class="btn btn-success my-2 my-sm-0" @click="login()" type="button">Login</button>
+      </nav>
+    </div>
+  </div>
+</template>
+<style>
+  .pos-f-t {
+    color: white;
+  }
+</style>
+<script>
+  export default {
+    name: 'Header',
+    methods: {
+      login () {
+        alert('test');
+      }
+    }
+  };
+</script>
