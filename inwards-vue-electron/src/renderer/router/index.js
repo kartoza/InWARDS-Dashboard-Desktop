@@ -8,12 +8,12 @@ export default new Router({
     {
       path: '/',
       name: 'map-landing-page',
-      component: require('@/components/MapLandingPage').default
+      component: require('@/components/LandingPage/MapLandingPage').default
     },
     {
       path: '/dashboard',
       name: 'dashboard-page',
-      component: require('@/components/Dashboard').default
+      component: require('@/components/Dashboard/Dashboard').default
     },
     {
       path: '*',
