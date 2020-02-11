@@ -30,7 +30,6 @@
   export default {
     mounted () {
       let $wmaList = $('#wma-list');
-      console.log($wmaList);
       this.$db.find({}, function (error, docs) {
         if (error) {
           return;

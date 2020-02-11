@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="height: 100%">
     <Header/>
     <div class="map-container">
       <div class="container-fluid">
@@ -12,14 +12,20 @@
   </div>
 </template>
 <style>
+  html, body, #app, .container-fluid, .col-md-12 {
+    height: 100%;
+  }
   .map-container {
     margin-top: 20px;
     margin-bottom: 20px;
+    height: -o-calc(100% - 100px); /* opera */
+    height: -webkit-calc(100% - 100px); /* google, safari */
+    height: -moz-calc(100% - 100px); /* firefox */
   }
   #map {
     display: block;
     width: 100%;
-    height: 500px;
+    height: 100%;
   }
   .save-selection {
     position: absolute;
@@ -41,49 +47,15 @@
   import $ from 'jquery';
   import router from '../router/index';
 
-  let selectedFeatures = {};
-  let selectedWMA = [];
-
-  let styleFunction = (feature, resolution) => {
-    let property = feature.get('wma');
-    let found = selectedWMA.indexOf(property);
-    console.log(found);
-    if (found === 1) {
-      return new Style({
-        stroke: new Stroke({
-          color: [51, 204, 51, 0.6],
-          width: 8
-        }),
-        fill: new Fill({
-          color: [51, 204, 51, 0.2]
-        }),
-        zIndex: 1
-      });
-    }
-    return new Style({
-      fill: new Fill({
-        color: [250, 250, 250, 1]
-      }),
-      stroke: new Stroke({
-        color: [220, 220, 220, 1],
-        width: 1
-      })
-    });
-  };
-
   export default {
+    data () {
+      return {
+        selectedWMA: [],
+        selectedFeatures: {}
+      };
+    },
     mounted () {
-      console.log(styleFunction);
-      // Get selected from db
-      this.$db.find({}, function (error, docs) {
-        if (error) {
-          return;
-        }
-        for (let i = 0; i < docs.length; i++) {
-          selectedWMA.push(docs[i]['selected_wma']);
-        }
-      });
-
+      let self = this;
       // Create a map
       let map = new Map({
         target: 'map',
@@ -124,6 +96,23 @@
         }),
         zIndex: 1
       });
+      let highlightedFeature = null;
+      map.addLayer(vectorLayer);
+      map.getView().fit(vectorLayer.getSource().getExtent());
+      map.on('pointermove', function (e) {
+        if (highlightedFeature !== null && !self.selectedFeatures.hasOwnProperty(highlightedFeature.ol_uid)) {
+          highlightedFeature.setStyle(undefined);
+          highlightedFeature = null;
+        };
+        map.forEachFeatureAtPixel(e.pixel, function (f) {
+          if (!self.selectedFeatures.hasOwnProperty(f.ol_uid)) {
+            highlightedFeature = f;
+            f.setStyle(highlightStyle);
+            return true;
+          }
+        });
+      });
+      // When map selected update the style
       let selectedStyle = new Style({
         stroke: new Stroke({
           color: [51, 204, 51, 0.6],
@@ -134,33 +123,37 @@
         }),
         zIndex: 1
       });
-      let highlightedFeature = null;
-      map.addLayer(vectorLayer);
-      map.getView().fit(vectorLayer.getSource().getExtent());
-      map.on('pointermove', function (e) {
-        if (highlightedFeature !== null && !selectedFeatures.hasOwnProperty(highlightedFeature.ol_uid)) {
-          highlightedFeature.setStyle(undefined);
-          highlightedFeature = null;
-        };
-        map.forEachFeatureAtPixel(e.pixel, function (f) {
-          if (!selectedFeatures.hasOwnProperty(f.ol_uid)) {
-            highlightedFeature = f;
-            f.setStyle(highlightStyle);
-            return true;
+      // Check selected map from db
+      self.$db.find({}, function (err, docs) {
+        if (err) {
+          return;
+        }
+        for (let i = 0; i < docs.length; i++) {
+          self.selectedWMA.push(docs[i]['selected_wma']);
+        }
+        let features = vectorLayer.getSource().getFeatures();
+        for (let i = 0; i < features.length; i++) {
+          let feature = features[i];
+          if (self.selectedWMA.indexOf(feature.get('wma')) !== -1) {
+            feature.setStyle(selectedStyle);
+            self.selectedFeatures[feature.ol_uid] = feature;
           }
-        });
+        }
+        if (Object.keys(self.selectedFeatures).length > 0) {
+          $('.save-selection').attr('disabled', false);
+        }
       });
       map.on('click', function (e) {
         // Check if there is a feature
         map.forEachFeatureAtPixel(e.pixel, function (feature, layer) {
-          if (!selectedFeatures.hasOwnProperty(feature.ol_uid)) {
-            selectedFeatures[feature.ol_uid] = feature;
+          if (!self.selectedFeatures.hasOwnProperty(feature.ol_uid)) {
+            self.selectedFeatures[feature.ol_uid] = feature;
             feature.setStyle(selectedStyle);
           } else {
-            delete selectedFeatures[feature.ol_uid];
+            delete self.selectedFeatures[feature.ol_uid];
             feature.setStyle(undefined);
           }
-          if (Object.keys(selectedFeatures).length > 0) {
+          if (Object.keys(self.selectedFeatures).length > 0) {
             $('.save-selection').attr('disabled', false);
           } else {
             $('.save-selection').attr('disabled', true);
@@ -178,23 +171,14 @@
             return;
           }
           console.log('Deleted', numDeleted, 'feature(s)');
+          for (let id in self.selectedFeatures) {
+            self.$db.insert({
+              'selected_wma': self.selectedFeatures[id].get('wma')
+            });
+          }
+          self.selectedFeatures = {};
+          router.push({ path: 'dashboard' });
         });
-        for (let id in selectedFeatures) {
-          self.$db.find({ selected_wma: selectedFeatures[id].getProperties().wma }, function (error, docs) {
-            if (error) {
-              console.log(error);
-              return;
-            }
-            // If no document is found, docs is equal to []
-            if (docs.length === 0) {
-              console.log(docs.length);
-              self.$db.insert({
-                'selected_wma': selectedFeatures[id].getProperties().wma
-              });
-            }
-          });
-        }
-        router.push({ path: 'dashboard' });
       }
     },
     components: {
