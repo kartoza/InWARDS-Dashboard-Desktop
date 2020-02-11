@@ -43,9 +43,9 @@
   import GeoJSON from 'ol/format/GeoJSON';
   import {Fill, Stroke, Style} from 'ol/style';
   import WmaJson from '@/assets/wma_merge.json';
-  import Header from './Header';
+  import Header from '../Header';
   import $ from 'jquery';
-  import router from '../router/index';
+  import router from '../../router/index';
 
   export default {
     data () {
