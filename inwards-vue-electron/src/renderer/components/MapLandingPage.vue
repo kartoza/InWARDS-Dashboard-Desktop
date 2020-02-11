@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="height: 100%">
     <Header/>
     <div class="map-container">
       <div class="container-fluid">
@@ -12,14 +12,20 @@
   </div>
 </template>
 <style>
+  html, body, #app, .container-fluid, .col-md-12 {
+    height: 100%;
+  }
   .map-container {
     margin-top: 20px;
     margin-bottom: 20px;
+    height: -o-calc(100% - 100px); /* opera */
+    height: -webkit-calc(100% - 100px); /* google, safari */
+    height: -moz-calc(100% - 100px); /* firefox */
   }
   #map {
     display: block;
     width: 100%;
-    height: 500px;
+    height: 100%;
   }
   .save-selection {
     position: absolute;
