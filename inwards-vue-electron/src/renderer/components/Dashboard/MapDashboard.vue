@@ -1,11 +1,11 @@
 <template>
     <div>
-    <div class="card">
+      <div class="card">
         <div class="card-header">Map</div>
-            <div class="card-body">
-                <div id="dashboard-map"></div>
-            </div>
+        <div class="card-body">
+          <div id="dashboard-map"></div>
         </div>
+      </div>
     </div>
 </template>
 <style>
@@ -28,30 +28,49 @@
   export default {
     data () {
       return {
+        keys: {
+          selected: 'selected',
+          station: 'Station'
+        },
         selectedStyle: new Style({
           stroke: new Stroke({
-            color: [51, 204, 51, 0.6],
-            width: 8
+            color: [51, 204, 51, 0.4],
+            width: 4
           }),
           fill: new Fill({
-            color: [51, 204, 51, 0.2]
+            color: [51, 204, 51, 0.1]
           }),
           zIndex: 1
         }),
         selectedFeatures: [],
         featureDict: {},
         selectedWMA: [],
+        selectedStations: [],
         defaultExtent: null,
         map: null,
         layerGroup: new LayerGroup({
           layers: []
+        }),
+        stationsSelectedStyle: new Style({
+          image: new CircleStyle({
+            radius: 5,
+            fill: new Fill({color: [51, 204, 51, 0.8]}),
+            stroke: new Stroke({color: 'green', width: 1})
+          })
+        }),
+        stationsDefaultStyle: new Style({
+          image: new CircleStyle({
+            radius: 5,
+            fill: new Fill({color: 'rgba(255,0,0,0.5)'}),
+            stroke: new Stroke({color: 'red', width: 1})
+          })
         }),
         stationsVectorLayer: new VectorLayer({
           source: new VectorSource(),
           style: function (feature) {
             return new Style({
               image: new CircleStyle({
-                radius: 3,
+                radius: 5,
                 fill: new Fill({color: 'rgba(255,0,0,0.5)'}),
                 stroke: new Stroke({color: 'red', width: 1})
               })
@@ -77,8 +96,35 @@
       });
       this.map.addLayer(this.layerGroup);
       this.map.addLayer(this.stationsVectorLayer);
+      this.map.on('click', this._mapClicked);
     },
     methods: {
+      _mapClicked (e) {
+        // Clicked map event handler
+        let self = this;
+        self.map.forEachFeatureAtPixel(e.pixel, function (feature, layer) {
+          let station = feature.get(self.keys.station);
+          let selected = feature.get(self.keys.selected);
+          if (!station) return false;
+          if (!selected) {
+            feature.set(self.keys.selected, true);
+            feature.setStyle(self.stationsSelectedStyle);
+            self.selectedStations.push(station);
+          } else {
+            feature.set(self.keys.selected, false);
+            feature.setStyle(self.stationsDefaultStyle);
+            const index = self.selectedStations.indexOf(station);
+            if (index > -1) {
+              self.selectedStations.splice(index, 1);
+            }
+          }
+          console.log(self.selectedStations);
+          return true;
+        });
+      },
+      getSelectedStations () {
+        return this.selectedStations;
+      },
       showSelectedWMA (data) {
         this.defaultExtent = Extent.createEmpty();
         for (let i = 0; i < data.length; i++) {

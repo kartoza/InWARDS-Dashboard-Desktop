@@ -14,7 +14,7 @@
   export default {
     methods: {
       createTree (jsonData, callback) {
-        let iconTree = require('../../assets/iconfinder_layer_37228.png');
+        let iconTree = require('@/assets/iconfinder_layer_37228.png');
         $('#jstree-div').on('changed.jstree', callback).jstree({
           'core': {
             'data': jsonData
