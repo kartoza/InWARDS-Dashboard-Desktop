@@ -5,6 +5,7 @@ import axios from 'axios';
 import $ from 'jquery';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import '@/static/css/font-awesome.min.css';
 import '@/utils/string.js';
 
 import App from './App';
