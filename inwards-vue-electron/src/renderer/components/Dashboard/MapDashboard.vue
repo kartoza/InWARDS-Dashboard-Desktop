@@ -123,7 +123,11 @@
         });
       },
       getSelectedStations () {
-        return this.selectedStations;
+        let _selectedStationsId = [];
+        for (let i = 0; i < this.selectedStations.length; i++) {
+          _selectedStationsId.push(this.selectedStations[i].split(' ')[0]);
+        }
+        return _selectedStationsId;
       },
       showSelectedWMA (data) {
         this.defaultExtent = Extent.createEmpty();

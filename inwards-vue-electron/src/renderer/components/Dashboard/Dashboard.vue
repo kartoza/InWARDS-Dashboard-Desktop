@@ -111,12 +111,12 @@
           return;
         }
         let dateStart = new Date(dateStartString);
-        let dateEnd = new Date(dateStartString);
+        let dateEnd = new Date(dateEndString);
         if (dateStart > dateEnd) {
           alert('End date should be after start date');
           return;
         }
-        console.log(dateStart, dateEnd);
+        this.$refs.chartComponent.displayChart(selectedStations, this.formatDate(dateStart), this.formatDate(dateEnd));
       },
       fetchStations (wmaNames) {
         let self = this;
