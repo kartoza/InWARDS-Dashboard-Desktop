@@ -56,21 +56,21 @@
   }
 </style>
 <script>
+  import axios from 'axios';
   import Header from '@/components/Header';
   import MapDashboard from './MapDashboard';
   import CatchmentTree from './CatchmentTree';
   import Chart from './Chart';
   import router from '@/router/index';
   import $ from 'jquery';
-  import 'jstree/dist/themes/default/style.min.css';
-  import 'jstree/dist/jstree.min.js';
-
+  require('promise.prototype.finally').shim();
+  
   export default {
     data () {
       return {
         selectedCatchments: [],
         stationsApi: 'http://inwards.award.org.za/app_json/stations.php',
-        stationsXhr: null
+        stationsRequest: null
       };
     },
     mounted () {
@@ -126,10 +126,10 @@
         if (!fs.existsSync(dir)) {
           fs.mkdirSync(dir);
         }
-        // Fetch stations from api
-        if (this.stationsXhr) {
-          this.stationsXhr.abort();
-          this.stationsXhr = null;
+        // Cancel previous request if any
+        if (this.stationsRequest) {
+          this.stationsRequest.cancel('Canceling stations request');
+          this.stationsRequest = null;
         }
         // Wrap wma name with single quotes, for api purposes
         wmaNames = wmaNames.sort();
@@ -137,21 +137,18 @@
           wmaNames[i] = `'${wmaNames[i]}'`;
         }
         let url = `${self.stationsApi}?wma=${wmaNames.join()}`;
-        let currentDate = (new Date()).toISOString().slice(0, 10).replace(/-/g, '');
-        let stationFile = `${dir}/${url.hashCode()}_${currentDate}.json`;
+        let stationFile = `${dir}/${url.hashCode()}.json`;
         if (fs.existsSync(stationFile)) {
           let jsonData = fs.readFileSync(stationFile, 'utf-8');
           let stationsData = JSON.parse(jsonData);
           self.$refs.mapDashboard.loadStationsToMap(stationsData);
         } else {
-          this.stationsXhr = $.ajax({
-            type: 'GET',
-            crossDomain: true,
-            url: url,
-            success: function (jsondata) {
-              self.$refs.mapDashboard.loadStationsToMap(jsondata);
-              fs.writeFileSync(stationFile, JSON.stringify(jsondata));
-            }
+          self.stationsRequest = axios.CancelToken.source();
+          axios.get(url, { cancelToken: self.stationsRequest.token }).then(response => {
+            self.$refs.mapDashboard.loadStationsToMap(response.data);
+            fs.writeFileSync(stationFile, JSON.stringify(response.data));
+          }).catch(error => {
+            console.log(error.response);
           });
         }
       },

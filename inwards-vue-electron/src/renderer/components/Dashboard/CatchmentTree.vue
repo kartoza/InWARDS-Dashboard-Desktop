@@ -17,6 +17,9 @@
 </template>
 <script>
   import $ from 'jquery';
+  import 'jstree/dist/themes/default/style.min.css';
+  import 'jstree/dist/jstree.min.js';
+
   export default {
     methods: {
       createTree (jsonData, callback) {
