@@ -23,6 +23,7 @@
 <script>
   import 'c3/c3.min.css';
   import c3 from 'c3';
+  import {timeFormat} from 'd3-time-format';
   import axios from 'axios';
   require('promise.prototype.finally').shim();
 
@@ -51,27 +52,33 @@
         this.loading = true;
         const url = `${this.baseUrl}?${this.dictToUri(this.urlParameters)}`;
         axios.get(url).then(response => {
-          c3.generate({
-            bindTo: '#chart',
-            data: JSON.parse(response.data),
-            axis: {
-              x: {
-                type: 'timeseries',
-                tick: {
-                  format: '%Y-%m-%d %H:%I:%S',
-                  count: 50,
-                  fit: true,
-                  multiline: true
+          let chartData = response.data;
+          setTimeout(() => {
+            c3.generate({
+              bindTo: '#chart',
+              data: chartData,
+              axis: {
+                x: {
+                  type: 'timeseries',
+                  tick: {
+                    fit: true,
+                    format: function (x) {
+                      var formatSeconds = timeFormat('%Y-%m-%d');
+                      return formatSeconds(new Date(x * 1000));
+                    },
+                    count: 8,
+                    rotate: 45
+                  }
                 }
+              },
+              point: {
+                show: false
+              },
+              line: {
+                connectNull: false
               }
-            },
-            point: {
-              show: false
-            },
-            line: {
-              connectNull: false
-            }
-          });
+            });
+          }, 1000);
         }).catch(error => {
           console.log(error);
           this.errored = true;
