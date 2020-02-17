@@ -4,8 +4,8 @@
         <a href="#" id="popup-closer" class="ol-popup-closer"></a>
         <div id="popup-content" class="ol-popup-content"></div>
       </div>
-      <template v-for="(child, index) in children">
-        <component :is="child" :key="child.name"></component>
+      <template v-for="(child, index) in popups">
+        <component :is="child" :key="child.name" :ref="child.id"></component>
       </template>
       <div class="card">
         <div class="card-header">Map</div>
@@ -86,9 +86,10 @@
   import * as Extent from 'ol/extent';
   const PopupComponent = {
     template: `<p @click="toggleMsg()">Welcome {{ station }}!</p>`,
+    id: '',
     data () {
       return {
-        station: ''
+        station: 'test2'
       };
     },
     methods: {
@@ -100,7 +101,7 @@
   export default {
     data () {
       return {
-        children: [],
+        popups: [],
         keys: {
           selected: 'selected',
           station: 'Station'
@@ -210,8 +211,6 @@
             self.selectedStations.push(station);
             content.innerHTML = `<p>${station.split(' ')[0]}</p>`;
             self.overlay.setPosition(feature.getGeometry().getCoordinates());
-            let popup = PopupComponent;
-            self.children.push(popup);
           } else {
             feature.set(self.keys.selected, false);
             feature.setStyle(self.stationsDefaultStyle);

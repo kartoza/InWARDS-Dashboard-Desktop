@@ -8,8 +8,7 @@
       <section v-else>
         <div v-if='loading'>Loading...</div>
         <div v-else>
-          {{ chartData }}
-          <!-- <div id="chart"></div> -->
+          <div id="chart"></div>
         </div>
       </section>
     </div>
@@ -37,6 +36,7 @@
           display: 'none'
         },
         baseUrl: 'http://inwards.award.org.za/app_json/unverified_timeseries.php',
+        testUrl: 'http://inwards.award.org.za/app_json/unverified_timeseries.php?stations=B2H014%2CB2R001&sd=2020-02-01&ed=2020-02-17&type=0',
         urlParameters: {
           stations: [],
           sd: '',
@@ -45,27 +45,35 @@
         }
       };
     },
-    mounted () {
-      let chart = c3.generate({
-        bindTo: '#chart',
-        data: {
-          columns: [
-            ['data1', 30, 200, 100, 400, 150, 250],
-            ['data2', 50, 20, 10, 40, 15, 25]
-          ]
-        }
-      });
-      console.log(chart);
-    },
     methods: {
       _fetchChartData () {
         console.log('Fetching...');
         this.loading = true;
         const url = `${this.baseUrl}?${this.dictToUri(this.urlParameters)}`;
         axios.get(url).then(response => {
-          this.chartData = response.data;
+          c3.generate({
+            bindTo: '#chart',
+            data: JSON.parse(response.data),
+            axis: {
+              x: {
+                type: 'timeseries',
+                tick: {
+                  format: '%Y-%m-%d %H:%I:%S',
+                  count: 50,
+                  fit: true,
+                  multiline: true
+                }
+              }
+            },
+            point: {
+              show: false
+            },
+            line: {
+              connectNull: false
+            }
+          });
         }).catch(error => {
-          console.log(error.response);
+          console.log(error);
           this.errored = true;
         }).finally(() => { this.loading = false; });
       },
