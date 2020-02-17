@@ -10,33 +10,36 @@
           <CatchmentTree ref="catchmentTree"/>
           <div class="v-space"></div>
           <MapDashboard ref="mapDashboard"/>
-          <div class="v-space">
-            <div class="card">
-              <div class="card-body">
-                <div class="row">
-                  <div class="col-sm-6" style="padding-right: 2px;">
-                    <div class="form-group">
-                      <label for="dateStart">Start Date</label>
-                      <input type="date" class="form-control" id="dateStart" >
-                    </div>
-                  </div>
-                  <div class="col-sm-6" style="padding-left: 2px;">
-                    <div class="form-group">
-                      <label for="dateEnd">End Date</label>
-                      <input type="date" class="form-control" id="dateEnd" >
-                    </div>
+          <div class="v-space"></div>
+          <div class="card">
+            <div class="card-body">
+              <div class="row">
+                <div class="col-sm-6" style="padding-right: 2px;">
+                  <div class="form-group">
+                    <label for="dateStart">Start Date</label>
+                    <input type="date" class="form-control" id="dateStart" >
                   </div>
                 </div>
-                <div class="row">
-                  <div class="col-12">
-                  <button class="btn btn-success" @click="fetchUnverified()" type="button" style="width: 100%">
-                    Fetch Unverified
-                  </button>
+                <div class="col-sm-6" style="padding-left: 2px;">
+                  <div class="form-group">
+                    <label for="dateEnd">End Date</label>
+                    <input type="date" class="form-control" id="dateEnd" >
                   </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-12">
+                <button class="btn btn-success" @click="fetchUnverified()" type="button" style="width: 100%">
+                  Fetch Unverified
+                </button>
                 </div>
               </div>
             </div>
           </div>
+          <div class="v-space"></div>
+        </div>
+        <div class="col-md-7">
+          <Chart ref="chartComponent"/>
         </div>
       </div>
     </div>
@@ -53,20 +56,21 @@
   }
 </style>
 <script>
-  import Header from '../Header';
+  import axios from 'axios';
+  import Header from '@/components/Header';
   import MapDashboard from './MapDashboard';
   import CatchmentTree from './CatchmentTree';
-  import router from '../../router/index';
+  import Chart from './Chart';
+  import router from '@/router/index';
   import $ from 'jquery';
-  import 'jstree/dist/themes/default/style.min.css';
-  import 'jstree/dist/jstree.min.js';
-
+  require('promise.prototype.finally').shim();
+  
   export default {
     data () {
       return {
         selectedCatchments: [],
         stationsApi: 'http://inwards.award.org.za/app_json/stations.php',
-        stationsXhr: null
+        stationsRequest: null
       };
     },
     mounted () {
@@ -87,15 +91,17 @@
     components: {
       Header,
       MapDashboard,
-      CatchmentTree
+      CatchmentTree,
+      Chart
     },
     methods: {
       backToMapSelect () {
         router.push({ path: '/' });
       },
       fetchUnverified () {
-        if (this.selectedCatchments.length === 0) {
-          alert('Please select at least one catchment');
+        const selectedStations = this.$refs.mapDashboard.getSelectedStations();
+        if (selectedStations.length === 0) {
+          alert('Please select at least one station');
           return;
         }
         let dateStartString = $('#dateStart').val();
@@ -105,12 +111,12 @@
           return;
         }
         let dateStart = new Date(dateStartString);
-        let dateEnd = new Date(dateStartString);
+        let dateEnd = new Date(dateEndString);
         if (dateStart > dateEnd) {
           alert('End date should be after start date');
           return;
         }
-        console.log(dateStart, dateEnd);
+        this.$refs.chartComponent.displayChart(selectedStations, this.formatDate(dateStart), this.formatDate(dateEnd));
       },
       fetchStations (wmaNames) {
         let self = this;
@@ -120,32 +126,29 @@
         if (!fs.existsSync(dir)) {
           fs.mkdirSync(dir);
         }
-        // Fetch stations from api
-        if (this.stationsXhr) {
-          this.stationsXhr.abort();
-          this.stationsXhr = null;
+        // Cancel previous request if any
+        if (this.stationsRequest) {
+          this.stationsRequest.cancel('Canceling stations request');
+          this.stationsRequest = null;
         }
-        // Add single quotes for each wma name, for api purposes
+        // Wrap wma name with single quotes, for api purposes
         wmaNames = wmaNames.sort();
         for (let i = 0; i < wmaNames.length; i++) {
           wmaNames[i] = `'${wmaNames[i]}'`;
         }
-        let url = `${self.stationsApi}?wma=${wmaNames.join()}&db=unverified`;
-        let currentDate = (new Date()).toISOString().slice(0, 10).replace(/-/g, '');
-        let stationFile = `${dir}/${url.hashCode()}_${currentDate}.json`;
+        let url = `${self.stationsApi}?wma=${wmaNames.join()}`;
+        let stationFile = `${dir}/${url.hashCode()}.json`;
         if (fs.existsSync(stationFile)) {
           let jsonData = fs.readFileSync(stationFile, 'utf-8');
           let stationsData = JSON.parse(jsonData);
           self.$refs.mapDashboard.loadStationsToMap(stationsData);
         } else {
-          this.stationsXhr = $.ajax({
-            type: 'GET',
-            crossDomain: true,
-            url: url,
-            success: function (jsondata) {
-              self.$refs.mapDashboard.loadStationsToMap(jsondata);
-              fs.writeFileSync(stationFile, JSON.stringify(jsondata));
-            }
+          self.stationsRequest = axios.CancelToken.source();
+          axios.get(url, { cancelToken: self.stationsRequest.token }).then(response => {
+            self.$refs.mapDashboard.loadStationsToMap(response.data);
+            fs.writeFileSync(stationFile, JSON.stringify(response.data));
+          }).catch(error => {
+            console.log(error.response);
           });
         }
       },

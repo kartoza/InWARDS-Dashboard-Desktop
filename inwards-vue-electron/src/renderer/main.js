@@ -3,9 +3,11 @@ import Vue from 'vue';
 import axios from 'axios';
 
 import $ from 'jquery';
+import 'ol/ol.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import './utils/string.js';
+import '@/static/css/font-awesome.min.css';
+import '@/utils/helpers.js';
 
 import App from './App';
 import router from './router';

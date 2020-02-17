@@ -1,20 +1,79 @@
 <template>
     <div>
-    <div class="card">
+      <div id="popup" class="ol-popup">
+        <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+        <div id="popup-content" class="ol-popup-content"></div>
+      </div>
+      <template v-for="(child, index) in popups">
+        <component :is="child" :key="child.name" :ref="child.id"></component>
+      </template>
+      <div class="card">
         <div class="card-header">Map</div>
-            <div class="card-body">
-                <div id="dashboard-map"></div>
-            </div>
+        <div class="card-body">
+          <div id="dashboard-map"></div>
         </div>
+      </div>
     </div>
 </template>
 <style>
+  .ol-popup {
+    opacity: 0.7;
+    font-weight: bold;
+    position: absolute;
+    background-color: white;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    padding: 5px;
+    border-radius: 10px;
+    border: 1px solid #cccccc;
+    bottom: 12px;
+    left: -40px;
+    min-width: 75px;
+  }
+  .ol-popup:after, .ol-popup:before {
+    top: 100%;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+  }
+  .ol-popup:after {
+    border-top-color: white;
+    border-width: 10px;
+    left: 38px;
+    margin-left: -10px;
+  }
+  .ol-popup:before {
+    border-top-color: #cccccc;
+    border-width: 11px;
+    left: 38px;
+    margin-left: -11px;
+  }
+  .ol-popup-closer {
+    text-decoration: none;
+    position: absolute;
+    top: 2px;
+    right: 8px;
+  }
+  .ol-popup-closer:after {
+    content: "✖";
+  }
+  .ol-popup-content {
+    font-size: 12px;
+  }
+  .ol-popup-content p {
+    max-width: 90px;;
+    margin-bottom: 0 !important;
+  } 
   #dashboard-map {
     width: 100%;
     height: 350px;
   }
 </style>
 <script>
+  /* eslint-disable no-unused-vars */
+  import Vue from 'vue';
   import Map from 'ol/Map';
   import View from 'ol/View';
   import {Group as LayerGroup, Tile as TileLayer} from 'ol/layer';
@@ -23,35 +82,69 @@
   import VectorSource from 'ol/source/Vector';
   import GeoJSON from 'ol/format/GeoJSON';
   import {Circle as CircleStyle, Fill, Stroke, Style} from 'ol/style';
+  import Overlay from 'ol/Overlay';
   import * as Extent from 'ol/extent';
-
+  const PopupComponent = {
+    template: `<p @click="toggleMsg()">Welcome {{ station }}!</p>`,
+    id: '',
+    data () {
+      return {
+        station: 'test2'
+      };
+    },
+    methods: {
+      toggleMsg () {
+        alert(this.station);
+      }
+    }
+  };
   export default {
     data () {
       return {
+        popups: [],
+        keys: {
+          selected: 'selected',
+          station: 'Station'
+        },
         selectedStyle: new Style({
           stroke: new Stroke({
-            color: [51, 204, 51, 0.6],
-            width: 8
+            color: [51, 204, 51, 0.4],
+            width: 4
           }),
           fill: new Fill({
-            color: [51, 204, 51, 0.2]
+            color: [51, 204, 51, 0.1]
           }),
           zIndex: 1
         }),
         selectedFeatures: [],
         featureDict: {},
         selectedWMA: [],
+        selectedStations: [],
         defaultExtent: null,
         map: null,
         layerGroup: new LayerGroup({
           layers: []
+        }),
+        stationsSelectedStyle: new Style({
+          image: new CircleStyle({
+            radius: 5,
+            fill: new Fill({color: [51, 204, 51, 0.8]}),
+            stroke: new Stroke({color: 'green', width: 1})
+          })
+        }),
+        stationsDefaultStyle: new Style({
+          image: new CircleStyle({
+            radius: 5,
+            fill: new Fill({color: 'rgba(255,0,0,0.5)'}),
+            stroke: new Stroke({color: 'red', width: 1})
+          })
         }),
         stationsVectorLayer: new VectorLayer({
           source: new VectorSource(),
           style: function (feature) {
             return new Style({
               image: new CircleStyle({
-                radius: 3,
+                radius: 5,
                 fill: new Fill({color: 'rgba(255,0,0,0.5)'}),
                 stroke: new Stroke({color: 'red', width: 1})
               })
@@ -61,6 +154,29 @@
       };
     },
     mounted () {
+      let container = document.getElementById('popup');
+      let closer = document.getElementById('popup-closer');
+      let self = this;
+      /**
+      * Add a click handler to hide the popup.
+      * @return {boolean} Don't follow the href.
+      */
+      closer.onclick = function () {
+        self.overlay.setPosition(undefined);
+        closer.blur();
+        return false;
+      };
+      /**
+       * Create an overlay to anchor the popup the map
+       */
+      this.overlay = new Overlay({
+        element: container,
+        autoPan: true,
+        autoPanAnimation: {
+          duration: 20
+        }
+      });
+
       this.map = new Map({
         target: 'dashboard-map',
         layers: [
@@ -70,6 +186,7 @@
             })
           })
         ],
+        overlays: [this.overlay],
         view: new View({
           center: [0, 0],
           zoom: 2
@@ -77,8 +194,41 @@
       });
       this.map.addLayer(this.layerGroup);
       this.map.addLayer(this.stationsVectorLayer);
+      this.map.on('click', this._mapClicked);
     },
     methods: {
+      _mapClicked (e) {
+        // Clicked map event handler
+        let self = this;
+        let content = document.getElementById('popup-content');
+        self.map.forEachFeatureAtPixel(e.pixel, function (feature, layer) {
+          let station = feature.get(self.keys.station);
+          let selected = feature.get(self.keys.selected);
+          if (!station) return false;
+          if (!selected) {
+            feature.set(self.keys.selected, true);
+            feature.setStyle(self.stationsSelectedStyle);
+            self.selectedStations.push(station);
+            content.innerHTML = `<p>${station.split(' ')[0]}</p>`;
+            self.overlay.setPosition(feature.getGeometry().getCoordinates());
+          } else {
+            feature.set(self.keys.selected, false);
+            feature.setStyle(self.stationsDefaultStyle);
+            const index = self.selectedStations.indexOf(station);
+            if (index > -1) {
+              self.selectedStations.splice(index, 1);
+            }
+          }
+          return true;
+        });
+      },
+      getSelectedStations () {
+        let _selectedStationsId = [];
+        for (let i = 0; i < this.selectedStations.length; i++) {
+          _selectedStationsId.push(this.selectedStations[i].split(' ')[0]);
+        }
+        return _selectedStationsId;
+      },
       showSelectedWMA (data) {
         this.defaultExtent = Extent.createEmpty();
         for (let i = 0; i < data.length; i++) {
