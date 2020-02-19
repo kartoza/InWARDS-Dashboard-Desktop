@@ -76,6 +76,7 @@
   import Vue from 'vue';
   import Map from 'ol/Map';
   import View from 'ol/View';
+  import {transform} from 'ol/proj';
   import {Group as LayerGroup, Tile as TileLayer} from 'ol/layer';
   import XYZ from 'ol/source/XYZ';
   import VectorLayer from 'ol/layer/Vector';
@@ -104,7 +105,7 @@
         popups: [],
         keys: {
           selected: 'selected',
-          station: 'Station'
+          station: 'station'
         },
         selectedStyle: new Style({
           stroke: new Stroke({
@@ -199,28 +200,7 @@
     methods: {
       _mapClicked (e) {
         // Clicked map event handler
-        let self = this;
-        let content = document.getElementById('popup-content');
-        self.map.forEachFeatureAtPixel(e.pixel, function (feature, layer) {
-          let station = feature.get(self.keys.station);
-          let selected = feature.get(self.keys.selected);
-          if (!station) return false;
-          if (!selected) {
-            feature.set(self.keys.selected, true);
-            feature.setStyle(self.stationsSelectedStyle);
-            self.selectedStations.push(station);
-            content.innerHTML = `<p>${station.split(' ')[0]}</p>`;
-            self.overlay.setPosition(feature.getGeometry().getCoordinates());
-          } else {
-            feature.set(self.keys.selected, false);
-            feature.setStyle(self.stationsDefaultStyle);
-            const index = self.selectedStations.indexOf(station);
-            if (index > -1) {
-              self.selectedStations.splice(index, 1);
-            }
-          }
-          return true;
-        });
+        this.selectStation(e.pixel);
       },
       getSelectedStations () {
         let _selectedStationsId = [];
@@ -261,9 +241,9 @@
           })
         }));
       },
-      styleCatchments (catchments) {
-        // Style a feature based on selected catchment name
-        // catchments = ['X33C', 'X33A', ...]
+      selectCatchments (catchments) {
+        // Style a feature based on selected secondary catchment name
+        // catchments = ['X3', 'X4', ...]
         for (let f = 0; f < this.selectedFeatures.length; f++) {
           this.selectedFeatures[f].setStyle(undefined);
         }
@@ -275,12 +255,61 @@
         let extent = Extent.createEmpty();
         for (let i = 0; i < catchments.length; i++) {
           let catchment = catchments[i];
-          let feature = this.featureDict[catchment];
-          feature.setStyle(this.selectedStyle);
-          this.selectedFeatures.push(feature);
-          Extent.extend(extent, feature.getGeometry().getExtent());
+          let features = this.featureDict[catchment];
+          for (let f = 0; f < features.length; f++) {
+            let feature = features[f];
+            feature.setStyle(this.selectedStyle);
+            this.selectedFeatures.push(feature);
+            Extent.extend(extent, feature.getGeometry().getExtent());
+          }
         }
         this.map.getView().fit(extent);
+      },
+      toggleSelectedStationsByStationNames (selectedStationNames, unselectedStationNames) {
+        let self = this;
+        this.stationsVectorLayer.getSource().forEachFeature(function (feature) {
+          let station = feature.get(self.keys.station);
+          const index = self.selectedStations.indexOf(station);
+          if (selectedStationNames.indexOf(station) !== -1) {
+            feature.set(self.keys.selected, true);
+            feature.setStyle(self.stationsSelectedStyle);
+            if (index === -1) {
+              self.selectedStations.push(station);
+            }
+          } else if (unselectedStationNames.indexOf(station) !== -1) {
+            feature.set(self.keys.selected, false);
+            feature.setStyle(self.stationsDefaultStyle);
+            if (index > -1) {
+              self.selectedStations.splice(index, 1);
+            }
+          }
+        });
+      },
+      selectStation (pixel) {
+        // Select and style stations from map based on ol.pixel
+        let content = document.getElementById('popup-content');
+        let self = this;
+        self.map.forEachFeatureAtPixel(pixel, function (feature, layer) {
+          let station = feature.get(self.keys.station);
+          let isStationSelected = feature.get(self.keys.selected);
+          if (!station) return false;
+          if (!isStationSelected) {
+            feature.set(self.keys.selected, true);
+            feature.setStyle(self.stationsSelectedStyle);
+            self.selectedStations.push(station);
+            content.innerHTML = `<p>${station.split(' ')[0]}</p>`;
+            self.overlay.setPosition(feature.getGeometry().getCoordinates());
+          } else {
+            feature.set(self.keys.selected, false);
+            feature.setStyle(self.stationsDefaultStyle);
+            const index = self.selectedStations.indexOf(station);
+            if (index > -1) {
+              self.selectedStations.splice(index, 1);
+            }
+          }
+          self.$bus.$emit('stationSelectedFromMap', station, !isStationSelected);
+          return true;
+        });
       },
       getCatchmentsData () {
         // Return catchment data as dict of dict
@@ -293,29 +322,23 @@
           for (let f = 0; f < features.length; f++) {
             let feature = features[f];
             let catchmentName = feature.get('NAME');
-            // Store feature in local dictionary
-            if (!this.featureDict[catchmentName]) {
-              this.featureDict[catchmentName] = feature;
-            }
-            let primaryCatchmentName = catchmentName.slice(0, 1);
             let secondaryCatchmentName = catchmentName.slice(0, 2);
-            let tertiaryCatchmentName = catchmentName.slice(0, 3);
-
-            if (!catchmentsData.hasOwnProperty(primaryCatchmentName)) {
-              catchmentsData[primaryCatchmentName] = {};
+            // Store feature in local dictionary
+            if (!this.featureDict[secondaryCatchmentName]) {
+              this.featureDict[secondaryCatchmentName] = [feature];
+            } else {
+              this.featureDict[secondaryCatchmentName].push(feature);
             }
-            if (!catchmentsData[primaryCatchmentName].hasOwnProperty(secondaryCatchmentName)) {
-              catchmentsData[primaryCatchmentName][secondaryCatchmentName] = {};
-            }
-            if (!catchmentsData[primaryCatchmentName][secondaryCatchmentName].hasOwnProperty(tertiaryCatchmentName)) {
-              catchmentsData[primaryCatchmentName][secondaryCatchmentName][tertiaryCatchmentName] = [];
-            }
-            if (catchmentsData[primaryCatchmentName][secondaryCatchmentName][tertiaryCatchmentName].indexOf(catchmentName) === -1) {
-              catchmentsData[primaryCatchmentName][secondaryCatchmentName][tertiaryCatchmentName].push(catchmentName);
+            if (!catchmentsData.hasOwnProperty(secondaryCatchmentName)) {
+              catchmentsData[secondaryCatchmentName] = [];
             }
           }
         }
-        return catchmentsData;
+        let orderedCatchmentsData = {};
+        Object.keys(catchmentsData).sort().forEach(function (key) {
+          orderedCatchmentsData[key] = catchmentsData[key];
+        });
+        return orderedCatchmentsData;
       }
     }
   };

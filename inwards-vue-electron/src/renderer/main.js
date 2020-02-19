@@ -19,6 +19,7 @@ Vue.http = Vue.prototype.$http = axios;
 Vue.config.productionTip = false;
 Vue.prototype.$db = db;
 Vue.prototype.$ = $;
+Vue.prototype.$bus = new Vue();
 
 /* eslint-disable no-new */
 new Vue({
