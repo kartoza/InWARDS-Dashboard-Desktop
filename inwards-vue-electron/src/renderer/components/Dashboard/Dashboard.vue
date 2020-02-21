@@ -68,9 +68,10 @@
   export default {
     data () {
       return {
-        selectedCatchments: [],
         stationsApi: 'http://inwards.award.org.za/app_json/stations.php',
-        stationsRequest: null
+        stationsCoordinates: {}, // To stored all stations with their coordinates
+        stationsRequest: null,
+        selectedStations: []
       };
     },
     mounted () {
@@ -84,8 +85,10 @@
           selectedWMA.push(docs[i]['selected_wma']);
         }
         self.$refs.mapDashboard.showSelectedWMA(selectedWMA);
-        self.createCatchmentTree();
         self.fetchStations(selectedWMA);
+      });
+      self.$bus.$on('stationSelectedFromMap', (station, isStationSelected) => {
+        self.$refs.catchmentTree.toggleNode(station, isStationSelected);
       });
     },
     components: {
@@ -142,50 +145,75 @@
           let jsonData = fs.readFileSync(stationFile, 'utf-8');
           let stationsData = JSON.parse(jsonData);
           self.$refs.mapDashboard.loadStationsToMap(stationsData);
+          self.createCatchmentTree(stationsData);
         } else {
           self.stationsRequest = axios.CancelToken.source();
           axios.get(url, { cancelToken: self.stationsRequest.token }).then(response => {
             self.$refs.mapDashboard.loadStationsToMap(response.data);
+            self.createCatchmentTree(response.data);
             fs.writeFileSync(stationFile, JSON.stringify(response.data));
           }).catch(error => {
-            console.log(error.response);
+            console.log(error);
           });
         }
       },
-      generateCatchmentTreeData (catchments) {
-        let catchmentTreeData = [];
+      generateTreeData (dictionary) {
+        let treeData = [];
         let self = this;
-        $.each(catchments, function (key, catchment) {
+        $.each(dictionary, function (key, catchment) {
           let hasChildren = false;
           if (typeof catchment === 'object' || catchment instanceof Array) {
             hasChildren = true;
           }
           let c = {
             text: hasChildren ? key : catchment,
-            type: 'layer'
+            id: hasChildren ? key : catchment,
+            type: hasChildren ? 'layer' : 'station'
           };
           if (hasChildren) {
-            c['children'] = self.generateCatchmentTreeData(catchment);
+            c['children'] = self.generateTreeData(catchment);
           };
-          catchmentTreeData.push(c);
+          treeData.push(c);
         });
-        return catchmentTreeData;
+        return treeData;
       },
-      createCatchmentTree () {
+      createCatchmentTree (stationsData) {
         let self = this;
-        let catchmentTreeData = self.generateCatchmentTreeData(self.$refs.mapDashboard.getCatchmentsData());
-        this.$refs.catchmentTree.createTree(catchmentTreeData, function (e, data) {
+        // Start adding stations data to catchment
+        let catchmentsData = self.$refs.mapDashboard.getCatchmentsData();
+        for (let i = 0; i < stationsData.features.length; i++) {
+          let secondary = stationsData.features[i]['properties']['secondary'];
+          let station = stationsData.features[i]['properties']['station'];
+          this.stationsCoordinates[station] = stationsData.features[i].geometry.coordinates;
+          if (catchmentsData.hasOwnProperty(secondary)) {
+            catchmentsData[secondary].push(station);
+            catchmentsData[secondary].sort();
+          }
+        }
+        let treeData = self.generateTreeData(catchmentsData);
+        this.$refs.catchmentTree.createTree(treeData, function (e, data) {
           let i = [];
-          let j = [];
-          let selectedCatchment = '';
-          self.selectedCatchments = [];
-          for (i = 0, j = data.selected.length; i < j; i++) {
-            selectedCatchment = data.instance.get_node(data.selected[i]).text;
-            if (selectedCatchment.length === 4) {
-              self.selectedCatchments.push(selectedCatchment);
+          let selected = '';
+          let selectedCatchments = [];
+          let _selectedStations = [];
+          let _unselectedStations = self.selectedStations;
+          for (i = 0; i < data.selected.length; i++) {
+            selected = data.instance.get_node(data.selected[i]).text;
+            let type = data.instance.get_node(data.selected[i]).type;
+            if (type === 'layer') {
+              selectedCatchments.push(selected);
+            } else if (type === 'station') {
+              _selectedStations.push(selected);
+              if (_unselectedStations.indexOf(selected) !== -1) _unselectedStations.splice(_unselectedStations.indexOf(selected), 1);
             }
           }
-          self.$refs.mapDashboard.styleCatchments(self.selectedCatchments);
+          self.$refs.mapDashboard.toggleSelectedStationsByStationNames(
+            _selectedStations,
+            _unselectedStations
+          );
+          console.log(self.$refs.mapDashboard.getSelectedStations());
+          self.selectedStations = _selectedStations;
+          self.$refs.mapDashboard.selectCatchments(selectedCatchments);
         });
       }
     }
