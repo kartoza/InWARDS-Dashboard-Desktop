@@ -57,22 +57,42 @@
             c3.generate({
               bindTo: '#chart',
               data: chartData,
+              zoom: {
+                enabled: true,
+                rescale: true,
+                type: 'drag'
+              },
               axis: {
                 x: {
                   type: 'timeseries',
                   tick: {
                     fit: true,
                     format: function (x) {
-                      var formatSeconds = timeFormat('%Y-%m-%d');
+                      var formatSeconds = timeFormat('%Y-%m-%d %H:%S');
                       return formatSeconds(new Date(x * 1000));
                     },
                     count: 8,
                     rotate: 45
                   }
+                },
+                y: {
+                  label: {
+                    text: 'Discharge (cumecs)',
+                    position: 'outer-center'
+                  },
+                  min: 0,
+                  padding: {top: 0, bottom: 0
+                  }
                 }
+              },
+              tooltip: {
+                show: true
               },
               point: {
                 show: false
+              },
+              color: {
+                pattern: ['rgba(128,0,0, 0.14)', 'rgba(255, 0, 0, 0.14)', 'rgba(255, 106, 0, 0.14)', 'rgba(255, 216, 0, 0.14)', 'rgba(0, 255, 33, 0.14)', 'rgba(0, 38, 255, 0.14)', 'rgb(0,0,0)', 'rgb(105,105,105)', '#6b1135', '#9a0410', '#90cb9e', '#fecb9d', '#5f9052', '#3d7d7f', '#8ca227', '#1a0333', '#907510']
               },
               line: {
                 connectNull: false
