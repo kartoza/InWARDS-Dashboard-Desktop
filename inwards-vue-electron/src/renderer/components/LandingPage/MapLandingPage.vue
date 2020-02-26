@@ -5,7 +5,7 @@
       <div class="container-fluid">
         <div class="col-md-12">
           <div id="map"></div>
-          <button class="btn btn-success my-2 my-sm-0 save-selection" disabled @click="saveSelection()" type="button">Save Selection</button>
+          <button class="btn btn-secondary my-2 my-sm-0 save-selection" disabled @click="saveSelection()" type="button">Save Selection</button>
         </div>
       </div>
     </div>
@@ -42,6 +42,7 @@
   import VectorSource from 'ol/source/Vector';
   import GeoJSON from 'ol/format/GeoJSON';
   import {Fill, Stroke, Style} from 'ol/style';
+  import knpJson from '@/assets/knp.json';
   import WmaJson from '@/assets/wma_merge.json';
   import Header from '@/components/Header';
   import $ from 'jquery';
@@ -71,7 +72,18 @@
           zoom: 2
         })
       });
-
+      let knpLayer = new VectorLayer({
+        source: new VectorSource({
+          features: (new GeoJSON({
+            defaultDataProjection: 'EPSG:4326'
+          })).readFeatures(knpJson, {
+            dataProjection: 'EPSG:4326',
+            featureProjection: 'EPSG:3857'
+          })
+        }),
+        updateWhileAnimating: true,
+        updateWhileInteracting: true
+      });
       let vectorLayer = new VectorLayer({
         source: new VectorSource({
           features: (new GeoJSON({
@@ -97,6 +109,18 @@
         zIndex: 1
       });
       let highlightedFeature = null;
+      map.addLayer(knpLayer);
+      let knpStyle = new Style({
+        stroke: new Stroke({
+          color: [51, 204, 51, 0.6],
+          width: 1
+        }),
+        fill: new Fill({
+          color: [51, 204, 51, 0.2]
+        }),
+        zIndex: 1
+      });
+      knpLayer.setStyle(knpStyle);
       map.addLayer(vectorLayer);
       map.getView().fit(vectorLayer.getSource().getExtent());
       map.on('pointermove', function (e) {
@@ -115,11 +139,11 @@
       // When map selected update the style
       let selectedStyle = new Style({
         stroke: new Stroke({
-          color: [51, 204, 51, 0.6],
-          width: 8
+          color: [0, 0, 128, 0.6],
+          width: 2
         }),
         fill: new Fill({
-          color: [51, 204, 51, 0.2]
+          color: [0, 0, 128, 0.2]
         }),
         zIndex: 1
       });

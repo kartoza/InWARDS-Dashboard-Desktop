@@ -20,11 +20,8 @@ function createWindow () {
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    height: 600,
-    minHeight: 600,
-    minWidth: 1000,
+    setFullScreen: true,
     useContentSize: true,
-    width: 1000,
     webPreferences: {
       nodeIntegration: true,
       nodeIntegrationInWorker: true
@@ -32,7 +29,7 @@ function createWindow () {
   });
 
   mainWindow.loadURL(winURL);
-
+  mainWindow.maximize();
   mainWindow.on('closed', () => {
     mainWindow = null;
   });

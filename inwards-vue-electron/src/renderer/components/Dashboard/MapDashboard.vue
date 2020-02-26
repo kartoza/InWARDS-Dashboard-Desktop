@@ -8,7 +8,7 @@
         <component :is="child" :key="child.name" :ref="child.id"></component>
       </template>
       <div class="card">
-        <div class="card-header">Map</div>
+        <div class="card-header bg-secondary"><h6 style="color: white;"><i class="fa fa-map" style="padding-right: 10px;"></i>Map</h6></div>
         <div class="card-body">
           <div id="dashboard-map"></div>
         </div>
@@ -28,6 +28,9 @@
     bottom: 12px;
     left: -40px;
     min-width: 75px;
+  }
+  .card-body {
+    padding: 0
   }
   .ol-popup:after, .ol-popup:before {
     top: 100%;

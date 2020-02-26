@@ -1,12 +1,16 @@
 <template>
   <div>
     <Header />
-    <div class="container-fluid" style="margin-top: 20px">
-      <button style="float:right" class="btn btn-success my-2 my-sm-0 pull-right" @click="backToMapSelect()" type="button">
-        Back to map select
-      </button>
+    <div class="container-fluid" style="margin-top: 0px">
       <div class="row">
-        <div class="col-md-5">
+        <div class="col-md-3 border bg-light">
+          <div class="card" style="margin-top: 5px; margin-bottom: 5px;">
+            <div class="card-body">
+              <button class="btn inwards_button" @click="backToMapSelect()" type="button">
+                <i class="fa fa-chevron-left"></i>Back to map select
+              </button>
+            </div>
+          </div>
           <CatchmentTree ref="catchmentTree"/>
           <div class="v-space"></div>
           <MapDashboard ref="mapDashboard"/>
@@ -16,21 +20,21 @@
               <div class="row">
                 <div class="col-sm-6" style="padding-right: 2px;">
                   <div class="form-group">
-                    <label for="dateStart">Start Date</label>
-                    <input type="date" class="form-control" id="dateStart" >
+                    <label for="dateStart" style="padding-left: 8px;">Start Date:</label> 
+                    <input type="date" class="form-control" id="dateStart" style="margin-left: 4px;">
                   </div>
                 </div>
                 <div class="col-sm-6" style="padding-left: 2px;">
                   <div class="form-group">
-                    <label for="dateEnd">End Date</label>
-                    <input type="date" class="form-control" id="dateEnd" >
+                    <label for="dateEnd" style="padding-left: 8px;">End Date:</label>
+                    <input type="date" class="form-control" id="dateEnd" style="margin-right: 10px;" @onload="setDates()">
                   </div>
                 </div>
               </div>
               <div class="row">
                 <div class="col-12">
-                <button class="btn btn-success" @click="fetchUnverified()" type="button" style="width: 100%">
-                  Fetch Unverified
+                <button class="btn inwards_button" @click="fetchUnverified()" type="button" style="width: 100%">
+                  <i class="fa fa-line-chart"></i>Chart Unverified
                 </button>
                 </div>
               </div>
@@ -38,8 +42,18 @@
           </div>
           <div class="v-space"></div>
         </div>
-        <div class="col-md-7">
-          <Chart ref="chartComponent"/>
+        <div class="col-md-9 border bg-light">
+          <div class="row">
+            <div class="col-md-6">
+              <Chart ref="chartComponent" style="margin-top: 5px;"/>
+            </div>
+            <div class="col-md-6">
+              <BoxChart ref="boxComponent" style="margin-top: 5px;"/>
+            </div>
+            <div class="col-md-6">
+              <DurationCurve ref="durationComponent" style="margin-top: 5px;"/>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -47,7 +61,7 @@
 </template>
 <style>
   .v-space {
-    height: 20px;
+    height: 10px;
   }
   .jstree-container {
     max-height: 200px;
@@ -61,6 +75,8 @@
   import MapDashboard from './MapDashboard';
   import CatchmentTree from './CatchmentTree';
   import Chart from './Chart';
+  import DurationCurve from './DurationCurve';
+  import BoxChart from './BoxChart';
   import router from '@/router/index';
   import $ from 'jquery';
   require('promise.prototype.finally').shim();
@@ -90,12 +106,39 @@
       self.$bus.$on('stationSelectedFromMap', (station, isStationSelected) => {
         self.$refs.catchmentTree.toggleNode(station, isStationSelected);
       });
+      var endDate = new Date();
+      var dd = endDate.getDate();
+      var mm = endDate.getMonth() + 1;
+      var yyyy = endDate.getFullYear();
+      if (dd < 10) {
+        dd = '0' + dd;
+      }
+      if (mm < 10) {
+        mm = '0' + mm;
+      }
+      endDate = yyyy + '-' + mm + '-' + dd;
+      document.getElementById('dateEnd').setAttribute('value', endDate);
+      var startDate = new Date();
+      startDate.setDate(startDate.getDate() - 14);
+      dd = startDate.getDate();
+      mm = startDate.getMonth() + 1;
+      yyyy = startDate.getFullYear();
+      if (dd < 10) {
+        dd = '0' + dd;
+      }
+      if (mm < 10) {
+        mm = '0' + mm;
+      }
+      startDate = yyyy + '-' + mm + '-' + dd;
+      document.getElementById('dateStart').setAttribute('value', startDate);
     },
     components: {
       Header,
       MapDashboard,
       CatchmentTree,
-      Chart
+      BoxChart,
+      Chart,
+      DurationCurve
     },
     methods: {
       backToMapSelect () {
@@ -119,7 +162,9 @@
           alert('End date should be after start date');
           return;
         }
+        this.$refs.boxComponent.displayBox(selectedStations, this.formatDate(dateStart), this.formatDate(dateEnd));
         this.$refs.chartComponent.displayChart(selectedStations, this.formatDate(dateStart), this.formatDate(dateEnd));
+        this.$refs.durationComponent.displayDurationCurve(selectedStations, this.formatDate(dateStart), this.formatDate(dateEnd));
       },
       fetchStations (wmaNames) {
         let self = this;
@@ -184,10 +229,14 @@
         for (let i = 0; i < stationsData.features.length; i++) {
           let secondary = stationsData.features[i]['properties']['secondary'];
           let station = stationsData.features[i]['properties']['station'];
+          let place = stationsData.features[i]['properties']['place'];
+          let latestReading = stationsData.features[i]['properties']['latest'];
           this.stationsCoordinates[station] = stationsData.features[i].geometry.coordinates;
           if (catchmentsData.hasOwnProperty(secondary)) {
-            catchmentsData[secondary].push(station);
-            catchmentsData[secondary].sort();
+            if (latestReading != null) {
+              catchmentsData[secondary].push(station + ': ' + place + ': ' + latestReading.toString().slice(0, 10));
+              catchmentsData[secondary].sort();
+            }
           }
         }
         let treeData = self.generateTreeData(catchmentsData);
@@ -196,15 +245,17 @@
           let selected = '';
           let selectedCatchments = [];
           let _selectedStations = [];
+          let selectedBits = [];
           let _unselectedStations = self.selectedStations;
           for (i = 0; i < data.selected.length; i++) {
             selected = data.instance.get_node(data.selected[i]).text;
+            selectedBits = selected.split(':');
             let type = data.instance.get_node(data.selected[i]).type;
             if (type === 'layer') {
-              selectedCatchments.push(selected);
+              selectedCatchments.push(selectedBits[0]);
             } else if (type === 'station') {
-              _selectedStations.push(selected);
-              if (_unselectedStations.indexOf(selected) !== -1) _unselectedStations.splice(_unselectedStations.indexOf(selected), 1);
+              _selectedStations.push(selectedBits[0]);
+              if (_unselectedStations.indexOf(selectedBits[0]) !== -1) _unselectedStations.splice(_unselectedStations.indexOf(selectedBits[0]), 1);
             }
           }
           self.$refs.mapDashboard.toggleSelectedStationsByStationNames(

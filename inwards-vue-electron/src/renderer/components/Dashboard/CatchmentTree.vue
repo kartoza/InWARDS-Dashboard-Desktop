@@ -1,17 +1,18 @@
 <template>
   <div>
      <div class="card">
-        <div class="card-header">Catchments</div>
+        <div class="card-header bg-secondary"><h6 style="color: white;"><i class="fa fa-map-marker" style="padding-right: 10px;"></i>Stations</h6>
+          <div style="float:right" class="input-group mb-2 mr-sm-2">
+            <div class="input-group-prepend">
+                <div class="input-group-text"><i class="fa fa-search" aria-hidden="true"></i></div>
+              </div>
+            <input type="text" class="form-control" id="catchmentSearchInput" placeholder="Search">
+          </div>
+        </div>
         <div class="card-body jstree-container">
           <div v-if='loading'>Loading...</div>
           <div v-else>
-            <div class="input-group mb-2 mr-sm-2">
-                <div class="input-group-prepend">
-                  <div class="input-group-text"><i class="fa fa-search" aria-hidden="true"></i></div>
-                </div>
-                <input type="text" class="form-control" id="catchmentSearchInput" placeholder="Search">
-              </div>
-              <div id="jstree-div">
+              <div id="jstree-div" style="font-size: 14px;">
               </div>
           </div>
         </div>
