@@ -6,7 +6,9 @@ import $ from 'jquery';
 import 'ol/ol.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import 'jquery/dist/jquery.min.js';
 import '@/static/css/font-awesome.min.css';
+import '@/static/css/custom.css';
 import '@/utils/helpers.js';
 
 import App from './App';

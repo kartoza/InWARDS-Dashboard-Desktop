@@ -1,5 +1,5 @@
 {
-  "name": "inwards-vue-electron",
+  "name": "INWARDS",
   "version": "0.0.1",
   "author": "Dimas <dimas.ciputra@gmail.com>",
   "description": "An application written in Electron.js for visualising stream flow conditions",
@@ -22,7 +22,7 @@
     "postinstall": "npm run lint:fix"
   },
   "build": {
-    "productName": "inwards-vue-electron",
+    "productName": "INWARDS",
     "appId": "org.kartoza.inwards",
     "directories": {
       "output": "build"
@@ -56,6 +56,8 @@
     }
   },
   "dependencies": {
+    "plotly": "^1.0.6",
+    "plotly.js-dist": "^1.52.2",
     "vue": "^2.5.16",
     "vue-electron": "^1.0.6",
     "vue-router": "^3.0.1",
