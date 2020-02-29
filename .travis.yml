@@ -12,9 +12,9 @@ matrix:
     compiler: clang
 cache:
   directories:
-  - node_modules
-  - "$HOME/.electron"
-  - "$HOME/.cache"
+  - inwards-vue-electron/node_modules
+  - "$HOME/inwards-vue-electron/.electron"
+  - "$HOME/inwards-vue-electron/.cache"
 addons:
   apt:
     packages:
