@@ -21,8 +21,6 @@ addons:
     - libgnome-keyring-dev
     - icnsutils
     #- xvfb
-before_script:
-- cd inwards-vue-electron
 before_install:
 - cd inwards-vue-electron
 - mkdir -p /tmp/git-lfs && curl -L https://github.com/github/git-lfs/releases/download/v1.2.1/git-lfs-$([
@@ -41,7 +39,6 @@ install:
 script:
 #- xvfb-maybe node_modules/.bin/karma start test/unit/karma.conf.js
 #- yarn run pack && xvfb-maybe node_modules/.bin/mocha test/e2e
-- cd ./inwards-vue-electron/
 - yarn run build
 branches:
   only:
