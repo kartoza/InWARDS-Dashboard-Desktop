@@ -21,7 +21,10 @@ addons:
     - libgnome-keyring-dev
     - icnsutils
     #- xvfb
+before_script:
+- cd inwards-vue-electron
 before_install:
+- cd inwards-vue-electron
 - mkdir -p /tmp/git-lfs && curl -L https://github.com/github/git-lfs/releases/download/v1.2.1/git-lfs-$([
   "$TRAVIS_OS_NAME" == "linux" ] && echo "linux" || echo "darwin")-amd64-1.2.1.tar.gz
   | tar -xz -C /tmp/git-lfs --strip-components 1 && /tmp/git-lfs/git-lfs pull
@@ -33,7 +36,7 @@ install:
 - curl -o- -L https://yarnpkg.com/install.sh | bash
 - source ~/.bashrc
 - npm install -g xvfb-maybe
-- npm install cfonts -g
+- npm install -g cfonts
 - yarn
 script:
 #- xvfb-maybe node_modules/.bin/karma start test/unit/karma.conf.js

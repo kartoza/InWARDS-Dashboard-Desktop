@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "author": "Dimas <dimas.ciputra@gmail.com>",
   "description": "An application written in Electron.js for visualising stream flow conditions",
-  "license": null,
+  "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
     "build": "node .electron-vue/build.js && electron-builder",
