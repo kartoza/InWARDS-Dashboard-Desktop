@@ -33,3 +33,40 @@ Dr. Sharon Pollard has a PhD in freshwater ecology and is a specialist in Integr
 
 ## Note from JRS
 The aspiration of private foundations like JRS is that our investments in technology and knowledge will be applicable and transferred to new contexts.  This grant to AWARD is such an instance where our prior investment in the Freshwater Research Center’s development of the Freshwater Biodiversity Information System (FBIS) for the Cape Floristic Region is being transferred and enhanced by AWARD in the Lowerveld/Kruger region of South Africa.  We are also grateful to the support to AWARD in this area from USAID Southern Africa: Resilience in the Limpopo Basin (RESILIM Olifants). AWARD will add significant value to the FBIS by mobilizing new data, engaging new partners, and by adding decision-support modules.  Decision support is vital to increasing the value of biodiversity data to diverse stakeholders in ecosystem conservation and sustainable development.  The ‘scaling-out’ of the FBIS to other regions and new applications will also support continued software development that may lead to modules that are transferable to other nascent information systems in southern and eastern Africa.
+
+
+# InWARDS Electron App
+
+An application written in Electron.js for visualising stream flow conditions
+
+#### Pre Build
+
+Make sure you have npm installed : https://docs.npmjs.com/downloading-and-installing-node-js-and-npm
+
+#### Build Setup
+
+``` bash
+# go to the inwards electron folder
+cd inwards-vue-electron
+
+# install dependencies
+npm install
+
+# serve with hot reload at localhost:9080
+npm run dev
+
+# build electron application for production
+npm run build
+
+# run unit & end-to-end tests
+npm test
+
+
+# lint all JS/Vue component files in `src/`
+npm run lint
+
+```
+
+---
+
+This project was generated with [electron-vue](https://github.com/SimulatedGREG/electron-vue)@[45a3e22](https://github.com/SimulatedGREG/electron-vue/tree/45a3e224e7bb8fc71909021ccfdcfec0f461f634) using [vue-cli](https://github.com/vuejs/vue-cli). Documentation about the original structure can be found [here](https://simulatedgreg.gitbooks.io/electron-vue/content/index.html).
