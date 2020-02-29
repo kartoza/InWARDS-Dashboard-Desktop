@@ -12,9 +12,9 @@ matrix:
     compiler: clang
 cache:
   directories:
-  - node_modules
-  - "$HOME/.electron"
-  - "$HOME/.cache"
+  - inwards-vue-electron/node_modules
+  - "$HOME/inwards-vue-electron/.electron"
+  - "$HOME/inwards-vue-electron/.cache"
 addons:
   apt:
     packages:
@@ -22,6 +22,7 @@ addons:
     - icnsutils
     #- xvfb
 before_install:
+- cd inwards-vue-electron
 - mkdir -p /tmp/git-lfs && curl -L https://github.com/github/git-lfs/releases/download/v1.2.1/git-lfs-$([
   "$TRAVIS_OS_NAME" == "linux" ] && echo "linux" || echo "darwin")-amd64-1.2.1.tar.gz
   | tar -xz -C /tmp/git-lfs --strip-components 1 && /tmp/git-lfs/git-lfs pull
@@ -33,6 +34,7 @@ install:
 - curl -o- -L https://yarnpkg.com/install.sh | bash
 - source ~/.bashrc
 - npm install -g xvfb-maybe
+- npm install -g cfonts
 - yarn
 script:
 #- xvfb-maybe node_modules/.bin/karma start test/unit/karma.conf.js
