@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/kartoza/InWARDS-Dashboard-Desktop.svg?branch=develop)](https://travis-ci.com/kartoza/InWARDS-Dashboard-Desktop)
+
 # Background
 
 The freshwater biodiversity of the five transboundary rivers of South Africa that feed the Kruger National Park (KNP) is under escalating threat from human activities, climate change, and invasive species. Although data indicate that river health is deteriorating in most of these rivers, this information is inadequately considered in status and compliance monitoring, planning, and action. The weak input of biodiversity knowledge into freshwater conservation practice is due, in part, to the lack of access to readily-available and ‘usable’ data for the area which is often discontinuous, intermittent, and in different formats. In the Lowveld region, there is a lack of access to biodiversity data as well as a lack of interpretive capacity. This region urgently needs a shared database for freshwater biodiversity data and the analytical capacity to consider data more systemically (across the catchments) and for potential impacts, i.e. “what if” scenarios.
