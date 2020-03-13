@@ -45,10 +45,11 @@
         }
       ]
     },
-    "mac": {
+    "osx": {
       "icon": "build/icons/icon.icns"
     },
     "win": {
+      "target": "NSIS",
       "icon": "build/icons/icon.ico"
     },
     "linux": {
