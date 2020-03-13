@@ -45,7 +45,7 @@
         }
       ]
     },
-    "osx": {
+    "mac": {
       "icon": "build/icons/icon.icns"
     },
     "win": {
