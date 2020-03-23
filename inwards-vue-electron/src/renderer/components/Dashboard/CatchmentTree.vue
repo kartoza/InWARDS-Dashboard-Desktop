@@ -31,19 +31,34 @@
       };
     },
     methods: {
+      toggleMultipleNodes (nodes, selected) {
+        for (let i = 0; i < nodes.length; i++) {
+          this.toggleNode(nodes[i], selected);
+        }
+      },
       toggleNode (node, selected) {
         let nodeBehaviour = selected ? 'select_node' : 'deselect_node';
         let $jsTreeDiv = $('#jstree-div');
+        if (!$jsTreeDiv) {
+          return false;
+        }
         $jsTreeDiv.jstree(nodeBehaviour, node);
         $jsTreeDiv.jstree(true).get_node(node, true).children('.jstree-anchor').focus();
       },
-      createTree (jsonData, callback) {
+      createTree (jsonData, treeClicked, treeReady) {
+        for (let i = 0; i < jsonData.length; i++) {
+          if (jsonData[i]['children'].length > 0) {
+            for (let j = 0; j < jsonData[i]['children'].length; j++) {
+              jsonData[i]['children'][j]['id'] = jsonData[i]['children'][j]['id'].split(':')[0];
+            }
+          }
+        }
         this.loading = false;
         let iconTree = require('@/assets/iconfinder_layer_37228.png');
         setTimeout(function () {
           let $jsTreeDiv = $('#jstree-div');
           let $searchInputDiv = $('#catchmentSearchInput');
-          $jsTreeDiv.on('changed.jstree', callback).jstree({
+          $jsTreeDiv.on('changed.jstree', treeClicked).jstree({
             'core': {
               'data': jsonData
             },
@@ -57,6 +72,7 @@
               }
             }
           });
+          $jsTreeDiv.on('ready.jstree', treeReady);
           let to = false;
           $searchInputDiv.keyup(function () {
             if (to) { clearTimeout(to); };

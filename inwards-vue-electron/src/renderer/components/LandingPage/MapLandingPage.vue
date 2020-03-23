@@ -46,6 +46,7 @@
   import WmaJson from '@/assets/wma_merge.json';
   import Header from '@/components/Header';
   import $ from 'jquery';
+  import stateStore from '../../store/state_handler';
   import router from '@/router/index';
 
   export default {
@@ -147,26 +148,22 @@
         }),
         zIndex: 1
       });
-      // Check selected map from db
-      self.$db.find({}, function (err, docs) {
-        if (err) {
-          return;
-        }
-        for (let i = 0; i < docs.length; i++) {
-          self.selectedWMA.push(docs[i]['selected_wma']);
-        }
-        let features = vectorLayer.getSource().getFeatures();
-        for (let i = 0; i < features.length; i++) {
-          let feature = features[i];
-          if (self.selectedWMA.indexOf(feature.get('wma')) !== -1) {
-            feature.setStyle(selectedStyle);
-            self.selectedFeatures[feature.ol_uid] = feature;
+      stateStore.getState(
+        stateStore.keys.selectedWMAs,
+        function (selectedWMAs) {
+          let features = vectorLayer.getSource().getFeatures();
+          for (let i = 0; i < features.length; i++) {
+            let feature = features[i];
+            if (selectedWMAs.indexOf(feature.get('wma')) !== -1) {
+              feature.setStyle(selectedStyle);
+              self.selectedFeatures[feature.ol_uid] = feature;
+            }
+          }
+          if (Object.keys(self.selectedFeatures).length > 0) {
+            $('.save-selection').attr('disabled', false);
           }
         }
-        if (Object.keys(self.selectedFeatures).length > 0) {
-          $('.save-selection').attr('disabled', false);
-        }
-      });
+      );
       map.on('click', function (e) {
         // Check if there is a feature
         map.forEachFeatureAtPixel(e.pixel, function (feature, layer) {
@@ -189,20 +186,12 @@
     methods: {
       saveSelection () {
         let self = this;
-        self.$db.remove({}, { multi: true }, function (err, numDeleted) {
-          if (err) {
-            console.log(err);
-            return;
-          }
-          console.log('Deleted', numDeleted, 'feature(s)');
-          for (let id in self.selectedFeatures) {
-            self.$db.insert({
-              'selected_wma': self.selectedFeatures[id].get('wma')
-            });
-          }
-          self.selectedFeatures = {};
-          router.push({ path: 'dashboard' });
-        });
+        let _selectedWMA = [];
+        for (let id in self.selectedFeatures) {
+          _selectedWMA.push(self.selectedFeatures[id].get('wma'));
+        }
+        stateStore.setState(stateStore.keys.selectedWMAs, _selectedWMA);
+        router.push({ path: 'dashboard' });
       }
     },
     components: {
