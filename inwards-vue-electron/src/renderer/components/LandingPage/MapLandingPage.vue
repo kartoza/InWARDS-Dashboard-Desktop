@@ -9,19 +9,19 @@
         <div class="card-body">
           <div class="row justify-content-md-center" style="margin-top: 5px; margin-bottom: 5px;">
                   <div class="col-md-12"> 
-                     <label class="custom-control custom-checkbox" style="margin-left: 2px">
+                     <label class="custom-control wma-toggle custom-checkbox">
                       <input id="limpopo" type="checkbox" class="custom-control-input">Limpopo
                       <span class="custom-control-indicator"></span>
                   </label>
                   </div>
                   <div class="col-md-12">
-                     <label class="custom-control custom-checkbox" style="margin-left: 2px">
+                     <label class="custom-control wma-toggle custom-checkbox">
                       <input id="olifants_letaba" type="checkbox" class="custom-control-input">Olifants-Letaba
                       <span class="custom-control-indicator"></span>
                   </label>
                   </div>
                   <div class="col-md-12"> 
-                     <label class="custom-control custom-checkbox" style="margin-left: 2px">
+                     <label class="custom-control wma-toggle custom-checkbox">
                       <input id="inkomati_usuthu" type="checkbox" class="custom-control-input">Inkomati-Usuthu
                       <span class="custom-control-indicator"></span>
                   </label>
@@ -43,7 +43,7 @@
       </div>
     </div>
     <div class="map-container">
-      <div class="container-fluid" style="height: 1010px; width:100%">
+      <div class="container-fluid" style="height: 100%; width:100%">
         <div class="col-md-12" style="width: 100%; height: 100%; margin: 0; padding: 0;">
           <div id="map"></div>
           </div>
@@ -190,9 +190,9 @@
         }),
         zIndex: 1
       });
-      $(document).ready(function () {
-        $('#login').modal('show');
-      });
+      // $(document).ready(function () {
+      //   $('#login').modal('show');
+      // });
       document.getElementById('verifyCode').addEventListener('click', function (element) {
         let email = document.getElementById('emailAddress').value;
         let code = document.getElementById('uniqueCode').value;
@@ -255,6 +255,7 @@
             if (selectedWMAs.indexOf(feature.get('wma')) !== -1) {
               feature.setStyle(selectedStyle);
               self.selectedFeatures[feature.ol_uid] = feature;
+              document.getElementById(feature.get('wma')).checked = true;
             }
           }
           if (Object.keys(self.selectedFeatures).length > 0) {
@@ -274,7 +275,6 @@
           } else {
             delete self.selectedFeatures[feature.ol_uid];
             feature.setStyle(undefined);
-            console.log(feature.values_.wma);
             let check = feature.values_.wma;
             document.getElementById(check).checked = false;
           }

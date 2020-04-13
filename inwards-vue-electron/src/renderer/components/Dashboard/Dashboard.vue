@@ -1,6 +1,6 @@
 <template>
-  <div style="height: 1010px;">
-    <div class="container-fluid" style="height: 1010px;">
+  <div style="height: 100%;">
+    <div class="container-fluid" style="height: 100%;">
       <div class="row" style="height: 100%;">
         <div class="col-md-3 no-float" style="background: #252526;">
           <div class="card rounded-0" style="margin-top: 5px; margin-bottom: 5px;">
@@ -111,20 +111,27 @@
         stationsApi: 'http://inwards.award.org.za/app_json/stations.php',
         stationsCoordinates: {}, // To stored all stations with their coordinates
         stationsRequest: null,
-        selectedStations: []
+        selectedStations: [],
+        selectedWMAs: []
       };
     },
     mounted () {
       let self = this;
+      self.mapDashboardRef = self.$refs.mapDashboard;
+      self.catchmentTreeRef = self.$refs.catchmentTree;
       stateStore.getState(
         stateStore.keys.selectedWMAs,
         function (selectedWMAs) {
-          self.$refs.mapDashboard.showSelectedWMA(selectedWMAs);
-          self.fetchStations(selectedWMAs);
+          self.selectedWMAs = selectedWMAs;
+          self.mapDashboardRef.showSelectedWMA(selectedWMAs);
+          self.fetchStations();
         }
       );
       self.$bus.$on('stationSelectedFromMap', (station, isStationSelected) => {
-        self.$refs.catchmentTree.toggleNode(station, isStationSelected);
+        self.catchmentTreeRef.toggleNode(station, isStationSelected);
+      });
+      self.$bus.$on('refreshStations', () => {
+        self.fetchStations();
       });
       stateStore.getState(
         stateStore.keys.dateEnd,
@@ -179,7 +186,7 @@
         router.push({ path: '/' });
       },
       fetchUnverified () {
-        const selectedStations = this.$refs.mapDashboard.getSelectedStations();
+        const selectedStations = this.mapDashboardRef.getSelectedStations();
         if (selectedStations.length === 0) {
           alert('Please select at least one station');
           return;
@@ -210,8 +217,9 @@
         }
         this.$refs.stationComponent.displayStationImages(selectedStations);
       },
-      fetchStations (wmaNames) {
+      fetchStations () {
         let self = this;
+        let wmaNames = Object.assign([], self.selectedWMAs);
         let fs = require('fs');
         let dir = '../../media';
         // TODO : Create an util class for file storage
@@ -229,21 +237,28 @@
           wmaNames[i] = `'${wmaNames[i]}'`;
         }
         let url = `${self.stationsApi}?wma=${wmaNames.join()}`;
+        console.log(url);
         let stationFile = `${dir}/${url.hashCode()}.json`;
-        if (fs.existsSync(stationFile)) {
-          let jsonData = fs.readFileSync(stationFile, 'utf-8');
-          let stationsData = JSON.parse(jsonData);
-          self.$refs.mapDashboard.loadStationsToMap(stationsData);
-          self.createCatchmentTree(stationsData);
-        } else {
-          self.stationsRequest = axios.CancelToken.source();
-          axios.get(url, { cancelToken: self.stationsRequest.token }).then(response => {
-            self.$refs.mapDashboard.loadStationsToMap(response.data);
+        // Check if online
+        if (navigator.onLine) {
+          let cancelToken = null;
+          if (self.stationsRequest) {
+            cancelToken = self.stationsRequest.token;
+          }
+          axios.get(url, { cancelToken: cancelToken }).then(response => {
+            self.mapDashboardRef.loadStationsToMap(response.data);
             self.createCatchmentTree(response.data);
             fs.writeFileSync(stationFile, JSON.stringify(response.data));
           }).catch(error => {
             console.log(error);
           });
+        } else {
+          if (fs.existsSync(stationFile)) {
+            let jsonData = fs.readFileSync(stationFile, 'utf-8');
+            let stationsData = JSON.parse(jsonData);
+            self.mapDashboardRef.loadStationsToMap(stationsData);
+            self.createCatchmentTree(stationsData);
+          }
         }
       },
       generateTreeData (dictionary) {
@@ -269,7 +284,7 @@
       createCatchmentTree (stationsData) {
         let self = this;
         // Start adding stations data to catchment
-        let catchmentsData = self.$refs.mapDashboard.getCatchmentsData();
+        let catchmentsData = self.mapDashboardRef.getCatchmentsData();
         for (let i = 0; i < stationsData.features.length; i++) {
           // let primary = stationsData.features[i]['properties']['primary'];
           let secondary = stationsData.features[i]['properties']['secondary'];
@@ -288,14 +303,14 @@
           }
         }
         let treeData = self.generateTreeData(catchmentsData);
-        this.$refs.catchmentTree.createTree(treeData, this.onCatchmentTreeSelectedHandler, this.onTreeReady);
+        this.catchmentTreeRef.createTree(treeData, this.onCatchmentTreeSelectedHandler, this.onTreeReady);
       },
       onTreeReady (event, data) {
         const self = this;
         stateStore.getState(
           stateStore.keys.selectedCatchments,
           function (selectedCatchments) {
-            self.$refs.catchmentTree.toggleMultipleNodes(selectedCatchments, true);
+            self.catchmentTreeRef.toggleMultipleNodes(selectedCatchments, true);
           }
         );
       },
@@ -306,7 +321,7 @@
         let selectedCatchments = [];
         let _selectedStations = [];
         let selectedBits = [];
-        let _unselectedStations = this.selectedStations;
+        let _unselectedStations = Object.assign([], this.selectedStations);
         for (i = 0; i < data.selected.length; i++) {
           selected = data.instance.get_node(data.selected[i]).text;
           selectedBits = selected.split(':');
@@ -318,13 +333,13 @@
             if (_unselectedStations.indexOf(selectedBits[0]) !== -1) _unselectedStations.splice(_unselectedStations.indexOf(selectedBits[0]), 1);
           }
         }
-        this.$refs.mapDashboard.toggleSelectedStationsByStationNames(
+        this.mapDashboardRef.toggleSelectedStationsByStationNames(
           _selectedStations,
           _unselectedStations
         );
         this.selectedStations = _selectedStations;
         stateStore.setState(stateStore.keys.selectedCatchments, this.selectedStations);
-        this.$refs.mapDashboard.selectCatchments(selectedCatchments);
+        this.mapDashboardRef.selectCatchments(selectedCatchments);
       }
     }
   };

@@ -17,25 +17,19 @@
         </div>
         </div>
     </div>
-    <div class="card-body box-container" style="margin-top: 5px;">
+    <div class="card-body chart-container">
       <section v-if="errored">
         <p>We're sorry, we're not able to retrieve this information at the moment, please try back later</p>
       </section>
       <section v-else>
         <div v-if='loading'>Loading...</div>
         <div v-else>
-          <div id="boxchart" style="height: 400px;"></div>
+          <div id="boxchart" style="max-height: 380px;"></div>
         </div>
       </section>
     </div>
   </div>
 </template>
-<style>
-  .box-container {
-    max-height: 400px;
-    overflow-y: auto;
-  }
-</style>
 <script>
   import 'c3/c3.min.css';
   import axios from 'axios';
