@@ -196,20 +196,26 @@
         }
         let url = `${self.stationsApi}?wma=${wmaNames.join()}`;
         let stationFile = `${dir}/${url.hashCode()}.json`;
-        if (fs.existsSync(stationFile)) {
-          let jsonData = fs.readFileSync(stationFile, 'utf-8');
-          let stationsData = JSON.parse(jsonData);
-          self.$refs.mapDashboard.loadStationsToMap(stationsData);
-          self.createCatchmentTree(stationsData);
-        } else {
-          self.stationsRequest = axios.CancelToken.source();
-          axios.get(url, { cancelToken: self.stationsRequest.token }).then(response => {
+        // Check if online
+        if (navigator.onLine) {
+          let cancelToken = null;
+          if (self.stationsRequest) {
+            cancelToken = self.stationsRequest.token;
+          }
+          axios.get(url, { cancelToken: cancelToken }).then(response => {
             self.$refs.mapDashboard.loadStationsToMap(response.data);
             self.createCatchmentTree(response.data);
             fs.writeFileSync(stationFile, JSON.stringify(response.data));
           }).catch(error => {
             console.log(error);
           });
+        } else {
+          if (fs.existsSync(stationFile)) {
+            let jsonData = fs.readFileSync(stationFile, 'utf-8');
+            let stationsData = JSON.parse(jsonData);
+            self.$refs.mapDashboard.loadStationsToMap(stationsData);
+            self.createCatchmentTree(stationsData);
+          }
         }
       },
       generateTreeData (dictionary) {
