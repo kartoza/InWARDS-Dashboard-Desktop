@@ -42,11 +42,11 @@
     methods: {
       displayStationImages (stations) {
         this.styleObject.display = 'block';
-        console.log('http://inwards.award.org.za/images/' + stations[0] + '.jpg');
+        console.log('http://inwards.award.org.za/images/' + stations[0].substring(0, 6) + '.jpg');
         var title = document.getElementById('stationTitle');
         title.innerHTML = 'Gauging station:' + stations[0];
         var img = document.getElementById('stationDiv');
-        img.src = 'http://inwards.award.org.za/images/' + stations[0] + '.jpg';
+        img.src = 'http://inwards.award.org.za/images/' + stations[0].substring(0, 6) + '.jpg';
       }
     }
   };
