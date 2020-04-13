@@ -102,6 +102,7 @@
   import Station from './Station';
   import router from '@/router/index';
   import $ from 'jquery';
+  import stateStore from '../../store/state_handler';
   require('promise.prototype.finally').shim();
   
   export default {
@@ -115,37 +116,46 @@
     },
     mounted () {
       let self = this;
-      this.$db.find({}, function (error, docs) {
-        let selectedWMA = [];
-        if (error) {
-          return;
+      stateStore.getState(
+        stateStore.keys.selectedWMAs,
+        function (selectedWMAs) {
+          self.$refs.mapDashboard.showSelectedWMA(selectedWMAs);
+          self.fetchStations(selectedWMAs);
         }
-        for (let i = 0; i < docs.length; i++) {
-          selectedWMA.push(docs[i]['selected_wma']);
-        }
-        self.$refs.mapDashboard.showSelectedWMA(selectedWMA);
-        self.fetchStations(selectedWMA);
-      });
+      );
       self.$bus.$on('stationSelectedFromMap', (station, isStationSelected) => {
         self.$refs.catchmentTree.toggleNode(station, isStationSelected);
       });
-      var endDate = new Date();
-      var dd = endDate.getDate();
-      var mm = endDate.getMonth() + 1;
-      var yyyy = endDate.getFullYear();
-      if (dd < 10) {
-        dd = '0' + dd;
-      }
-      if (mm < 10) {
-        mm = '0' + mm;
-      }
-      endDate = yyyy + '-' + mm + '-' + dd;
-      document.getElementById('dateEnd').setAttribute('value', endDate);
+      stateStore.getState(
+        stateStore.keys.dateEnd,
+        function (dateEnd) {
+          if (!dateEnd) {
+            var endDate = new Date();
+            var dd = endDate.getDate();
+            var mm = endDate.getMonth() + 1;
+            var yyyy = endDate.getFullYear();
+            if (dd < 10) {
+              dd = '0' + dd;
+            }
+            if (mm < 10) {
+              mm = '0' + mm;
+            }
+            dateEnd = yyyy + '-' + mm + '-' + dd;
+          }
+          document.getElementById('dateEnd').setAttribute('value', dateEnd);
+        }
+      );
+      document.getElementById('dateEnd').onchange = function () {
+        stateStore.setState(
+          stateStore.keys.dateEnd,
+          this.value
+        );
+      };
       var startDate = new Date();
       startDate.setDate(startDate.getDate() - 14);
-      dd = startDate.getDate();
-      mm = startDate.getMonth() + 1;
-      yyyy = startDate.getFullYear();
+      var dd = startDate.getDate();
+      var mm = startDate.getMonth() + 1;
+      var yyyy = startDate.getFullYear();
       if (dd < 10) {
         dd = '0' + dd;
       }
@@ -278,33 +288,43 @@
           }
         }
         let treeData = self.generateTreeData(catchmentsData);
-        this.$refs.catchmentTree.createTree(treeData, function (e, data) {
-          let i = [];
-          let selected = '';
-          let selectedCatchments = [];
-          let _selectedStations = [];
-          let selectedBits = [];
-          let _unselectedStations = self.selectedStations;
-          for (i = 0; i < data.selected.length; i++) {
-            selected = data.instance.get_node(data.selected[i]).text;
-            selectedBits = selected.split(':');
-            let type = data.instance.get_node(data.selected[i]).type;
-            if (type === 'layer') {
-              selectedCatchments.push(selectedBits[0]);
-              selectedCatchments.sort();
-            } else if (type === 'station') {
-              _selectedStations.push(selectedBits[0]);
-              if (_unselectedStations.indexOf(selectedBits[0]) !== -1) _unselectedStations.splice(_unselectedStations.indexOf(selectedBits[0]), 1);
-            }
+        this.$refs.catchmentTree.createTree(treeData, this.onCatchmentTreeSelectedHandler, this.onTreeReady);
+      },
+      onTreeReady (event, data) {
+        const self = this;
+        stateStore.getState(
+          stateStore.keys.selectedCatchments,
+          function (selectedCatchments) {
+            self.$refs.catchmentTree.toggleMultipleNodes(selectedCatchments, true);
           }
-          self.$refs.mapDashboard.toggleSelectedStationsByStationNames(
-            _selectedStations,
-            _unselectedStations
-          );
-          console.log(self.$refs.mapDashboard.getSelectedStations());
-          self.selectedStations = _selectedStations;
-          self.$refs.mapDashboard.selectCatchments(selectedCatchments);
-        });
+        );
+      },
+      onCatchmentTreeSelectedHandler (event, data) {
+        // On catchment tree clicked
+        let i = [];
+        let selected = '';
+        let selectedCatchments = [];
+        let _selectedStations = [];
+        let selectedBits = [];
+        let _unselectedStations = this.selectedStations;
+        for (i = 0; i < data.selected.length; i++) {
+          selected = data.instance.get_node(data.selected[i]).text;
+          selectedBits = selected.split(':');
+          let type = data.instance.get_node(data.selected[i]).type;
+          if (type === 'layer') {
+            selectedCatchments.push(selectedBits[0]);
+          } else if (type === 'station') {
+            _selectedStations.push(selectedBits[0]);
+            if (_unselectedStations.indexOf(selectedBits[0]) !== -1) _unselectedStations.splice(_unselectedStations.indexOf(selectedBits[0]), 1);
+          }
+        }
+        this.$refs.mapDashboard.toggleSelectedStationsByStationNames(
+          _selectedStations,
+          _unselectedStations
+        );
+        this.selectedStations = _selectedStations;
+        stateStore.setState(stateStore.keys.selectedCatchments, this.selectedStations);
+        this.$refs.mapDashboard.selectCatchments(selectedCatchments);
       }
     }
   };
