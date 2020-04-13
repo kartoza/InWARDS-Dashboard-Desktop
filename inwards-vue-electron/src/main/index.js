@@ -22,6 +22,7 @@ function createWindow () {
   mainWindow = new BrowserWindow({
     setFullScreen: true,
     useContentSize: true,
+    frame: false,
     webPreferences: {
       nodeIntegration: true,
       nodeIntegrationInWorker: true
