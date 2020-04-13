@@ -4,12 +4,14 @@ import axios from 'axios';
 
 import $ from 'jquery';
 import 'ol/ol.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap/js/dist/util.js';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import 'jquery/dist/jquery.min.js';
 import '@/static/css/font-awesome.min.css';
 import '@/static/css/custom.css';
 import '@/utils/helpers.js';
+import 'material-design-iconic-font/dist/css/material-design-iconic-font.css';
 
 import App from './App';
 import router from './router';
@@ -30,3 +32,11 @@ new Vue({
   store,
   template: '<App/>'
 }).$mount('#app');
+
+const path = require('path');
+const url = require('url');
+const customTitlebar = require('custom-electron-titlebar');
+new customTitlebar.Titlebar({
+  backgroundColor: customTitlebar.Color.fromHex('#3C3C3C'),
+  icon: url.format(path.join(__dirname, '/assets', '/icon.png'))
+});

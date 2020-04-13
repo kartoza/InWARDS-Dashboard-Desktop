@@ -1,13 +1,12 @@
 <template>
-  <div>
-    <Header />
-    <div class="container-fluid" style="margin-top: 0px">
-      <div class="row">
-        <div class="col-md-3 border bg-light">
-          <div class="card" style="margin-top: 5px; margin-bottom: 5px;">
+  <div style="height: 1010px;">
+    <div class="container-fluid" style="height: 1010px;">
+      <div class="row" style="height: 100%;">
+        <div class="col-md-3 no-float" style="background: #252526;">
+          <div class="card rounded-0" style="margin-top: 5px; margin-bottom: 5px;">
             <div class="card-body">
-              <button class="btn inwards_button" @click="backToMapSelect()" type="button">
-                <i class="fa fa-chevron-left"></i>Back to map select
+              <button class="btn rounded-0 inwards_button" @click="backToMapSelect()" type="button">
+                <i class="fa fa-chevron-left"></i>Back to Dashbaord Selection
               </button>
             </div>
           </div>
@@ -15,7 +14,7 @@
           <div class="v-space"></div>
           <MapDashboard ref="mapDashboard"/>
           <div class="v-space"></div>
-          <div class="card">
+          <div class="card rounded-0">
             <div class="card-body">
               <div class="row">
                 <div class="col-sm-6" style="padding-right: 2px;">
@@ -31,8 +30,28 @@
                   </div>
                 </div>
               </div>
-              <div class="row">
-                <div class="col-12">
+              <div class="row" style="margin-top: 5px; margin-bottom: 5px;">
+                  <div class="col-md-4">
+                     <label class="custom-control custom-checkbox" style="margin-left: 5px">
+                      <input id="ts" type="checkbox" class="custom-control-input" checked="true">T/S
+                      <span class="custom-control-indicator"></span>
+                  </label>
+                  </div>
+                  <div class="col-md-4">
+                     <label class="custom-control custom-checkbox">
+                      <input id="bx" type="checkbox" class="custom-control-input" checked="true">Boxplot
+                      <span class="custom-control-indicator"></span>
+                  </label>
+                  </div>
+                  <div class="col-md-4">
+                     <label class="custom-control custom-checkbox">
+                      <input id="fdc" type="checkbox" class="custom-control-input" checked="true">FDC
+                      <span class="custom-control-indicator"></span>
+                  </label>
+                </div>
+              </div>
+                <div class="row">
+                <div class="col-md-12">
                 <button class="btn inwards_button" @click="fetchUnverified()" type="button" style="width: 100%">
                   <i class="fa fa-line-chart"></i>Chart Unverified
                 </button>
@@ -42,7 +61,7 @@
           </div>
           <div class="v-space"></div>
         </div>
-        <div class="col-md-9 border bg-light">
+        <div class="col-md-9 no-float" style="background: #1E1E1E;">
           <div class="row">
             <div class="col-md-6">
               <Chart ref="chartComponent" style="margin-top: 5px;"/>
@@ -52,6 +71,9 @@
             </div>
             <div class="col-md-6">
               <DurationCurve ref="durationComponent" style="margin-top: 5px;"/>
+            </div>
+            <div class="col-md-6">
+                <Station ref="stationComponent" style="margin-top: 5px;"/>
             </div>
           </div>
         </div>
@@ -77,6 +99,7 @@
   import Chart from './Chart';
   import DurationCurve from './DurationCurve';
   import BoxChart from './BoxChart';
+  import Station from './Station';
   import router from '@/router/index';
   import $ from 'jquery';
   import stateStore from '../../store/state_handler';
@@ -148,7 +171,8 @@
       CatchmentTree,
       BoxChart,
       Chart,
-      DurationCurve
+      DurationCurve,
+      Station
     },
     methods: {
       backToMapSelect () {
@@ -172,9 +196,19 @@
           alert('End date should be after start date');
           return;
         }
-        this.$refs.boxComponent.displayBox(selectedStations, this.formatDate(dateStart), this.formatDate(dateEnd));
-        this.$refs.chartComponent.displayChart(selectedStations, this.formatDate(dateStart), this.formatDate(dateEnd));
-        this.$refs.durationComponent.displayDurationCurve(selectedStations, this.formatDate(dateStart), this.formatDate(dateEnd));
+        let tsChart = document.getElementById('ts').checked;
+        if (tsChart === true) {
+          this.$refs.chartComponent.displayChart(selectedStations, this.formatDate(dateStart), this.formatDate(dateEnd));
+        }
+        let bxChart = document.getElementById('bx').checked;
+        if (bxChart === true) {
+          this.$refs.boxComponent.displayBox(selectedStations, this.formatDate(dateStart), this.formatDate(dateEnd));
+        }
+        let fdcChart = document.getElementById('fdc').checked;
+        if (fdcChart === true) {
+          this.$refs.durationComponent.displayDurationCurve(selectedStations, this.formatDate(dateStart), this.formatDate(dateEnd));
+        }
+        this.$refs.stationComponent.displayStationImages(selectedStations);
       },
       fetchStations (wmaNames) {
         let self = this;
@@ -237,6 +271,7 @@
         // Start adding stations data to catchment
         let catchmentsData = self.$refs.mapDashboard.getCatchmentsData();
         for (let i = 0; i < stationsData.features.length; i++) {
+          // let primary = stationsData.features[i]['properties']['primary'];
           let secondary = stationsData.features[i]['properties']['secondary'];
           let station = stationsData.features[i]['properties']['station'];
           let place = stationsData.features[i]['properties']['place'];
@@ -245,6 +280,9 @@
           if (catchmentsData.hasOwnProperty(secondary)) {
             if (latestReading != null) {
               catchmentsData[secondary].push(station + ': ' + place + ': ' + latestReading.toString().slice(0, 10));
+              catchmentsData[secondary].sort();
+            } else {
+              catchmentsData[secondary].push('Problem with Station');
               catchmentsData[secondary].sort();
             }
           }

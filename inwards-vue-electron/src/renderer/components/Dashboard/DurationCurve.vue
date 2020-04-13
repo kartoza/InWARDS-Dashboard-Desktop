@@ -1,20 +1,17 @@
 <template>
-  <div class="card" v-bind:style="styleObject">
-    <div class="card-header bg-secondary">
+  <div class="card rounded-0 box" v-bind:style="styleObject">
+    <div class="card-header inwards_card">
    <div class="row">
-    <div class="col-md-6">  
-    <h6 style="color: white;">Unverified Discharge Duration Curve</h6>
-    </div>
-    <div class="col-md-6">
-    <div class="dropdown show">
-      <a class="btn btn-secondary fa fa-bars" style="float: right; font-size: 20px;" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-      </a>
-      <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-        <a class="dropdown-item" href="#"><i class="fa fa-search-plus" style="padding-right: 10px;"></i>Zoom</a>
-        <a class="dropdown-item" href="#"><i class="fa fa-question-circle" style="padding-right: 10px;"></i>Tooltip</a>
-        <a class="dropdown-item" href="#"><i class="fa fa-download" style="padding-right: 10px;"></i>Download Data</a>
-        <a class="dropdown-item" href="#"><i class="fa fa-floppy-o" style="padding-right: 10px;"></i>Save Chart</a>
-        </div>
+    <div class="col-md-12">  
+    <h6 style="color: white; margin-top: 10px; width: 50%; float: left;">Unverified Discharge Duration Curve</h6>
+      <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups" style="float: right;">
+        <div class="btn-group mr-2" role="group" aria-label="First group">
+            <button type="button" class="btn inwards_button_group" data-toggle="tooltip" data-placement="top" title="Zoom"><i class="fa fa-search-plus" style="padding-right: 10px;"></i></button>
+            <button type="button" class="btn inwards_button_group" data-toggle="tooltip" data-placement="top" title="Tooltip"><i class="fa fa-question-circle" style="padding-right: 10px;"></i></button>
+            <button type="button" class="btn inwards_button_group" data-toggle="tooltip" data-placement="top" title="Download"><i class="fa fa-download" style="padding-right: 10px;"></i></button>
+            <button type="button" class="btn inwards_button_group" data-toggle="tooltip" data-placement="top" title="Savee"><i class="fa fa-floppy-o" style="padding-right: 10px;"></i></button>
+            <button type="button" class="btn inwards_button_group" data-toggle="tooltip" data-placement="top" title="Add to your dashboard"><i class="fa fa-plus" style="padding-right: 10px;"></i></button>
+          </div>
     </div>
     </div>
     </div>
@@ -26,7 +23,7 @@
       <section v-else>
         <div v-if='loading'>Loading...</div>
         <div v-else>
-          <div id="durationDiv" style="height: 400px;"></div>
+          <div id="durationDiv" style="height: 380px;"></div>
         </div>
       </section>
     </div>
@@ -84,7 +81,8 @@
                   },
                   tick: {
                     fit: true,
-                    count: 10
+                    format: function (d) { return Math.ceil(d); },
+                    count: 20
                   }
                 },
                 y: {
