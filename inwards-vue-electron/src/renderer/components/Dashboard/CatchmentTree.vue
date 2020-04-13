@@ -1,7 +1,8 @@
 <template>
   <div>
      <div class="card rounded-0">
-        <div class="card-header inwards_card"><h6 style="color: white;"><i class="fa fa-map-marker" style="padding-right: 10px;"></i>Stations<i class="fa fa-refresh" style="float:right; color: white"></i></h6>
+        <div class="card-header inwards_card"><h6 style="color: white;"><i class="fa fa-map-marker" style="padding-right: 10px;"></i>Stations
+        <i class="fa fa-refresh" id="refresh-stations" v-on:click="refreshStations"></i></h6>
           <div style="float:right" class="input-group mb-2 mr-sm-2">
             <div class="input-group-prepend">
                 <div class="input-group-text"><i class="fa fa-search" aria-hidden="true"></i></div>
@@ -35,6 +36,10 @@
         for (let i = 0; i < nodes.length; i++) {
           this.toggleNode(nodes[i], selected);
         }
+      },
+      refreshStations () {
+        this.loading = true;
+        this.$bus.$emit('refreshStations');
       },
       toggleNode (node, selected) {
         let nodeBehaviour = selected ? 'select_node' : 'deselect_node';

@@ -16,26 +16,19 @@
     </div>
     </div>
     </div>
-    <div class="card-body chart-container" style="margin-top: 5px;">
+    <div class="card-body chart-container">
       <section v-if="errored">
         <p>We're sorry, we're not able to retrieve this information at the moment, please try back later</p>
       </section>
       <section v-else>
         <div v-if='loading'>Loading...</div>
         <div v-else>
-          <div id="chart" style="height: 400px;"></div>
+          <div id="chart" style="height: 100%;"></div>
         </div>
       </section>
     </div>
   </div>
 </template>
-<style>
-  .chart-container {
-    max-height: 400px;
-    height: 400px;
-    overflow-y: auto;
-  }
-</style>
 <script>
   import 'c3/c3.min.css';
   import c3 from 'c3';

@@ -189,3 +189,22 @@ html {
   top: 50%;
   transform: translate(-50%, -50%);
 }
+.wma-toggle {
+  margin-left: 10px;
+}
+
+.chart-container {
+  padding-top: 10px !important;
+  max-height: 400px;
+  height: 400px;
+  overflow-y: auto;
+  padding-left: 10px !important;
+  padding-bottom: 10px !important;
+}
+#refresh-stations {
+  float:right; 
+  color: white;
+}
+#refresh-stations:hover {
+  cursor: pointer;
+}
