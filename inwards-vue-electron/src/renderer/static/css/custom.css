@@ -1,14 +1,78 @@
+html, body, #app, .container-fluid, .col-md-12 {
+  height: 100%;
+  width: 100%; 
+}
+.box-container {
+  max-height: 400px;
+  overflow-y: auto;
+}
+.map-container {
+  width: 100%; 
+  height: 100%; 
+  margin: 0; 
+  padding: 0;
+  height: -o-calc(100% - 40px); /* opera */
+  height: -webkit-calc(100% - 40px); /* google, safari */
+  height: -moz-calc(100% - 40px); /* firefox */
+}
+#overlay {
+position: fixed; /* Sit on top of the page content */
+width: 200px; /* Full width (cover the whole page) */
+height: 10px; /* Full height (cover the whole page) */
+top: 5%;
+left: 80%;
+right: 0;
+bottom: 0;
+background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+cursor: pointer; /* Add a pointer on hover */
+}
+#map {
+  display: block;
+  width: 100%; 
+  height: 100%; 
+  margin: 0; 
+  padding: 0;
+  z-index: 0;
+}
+.save-selection {
+  position: absolute;
+  margin-top: -45px !important;
+  margin-left: 8px;
+}
 .inwards_button{
     font-family: "Source Sans Pro", sans-serif;
     color: #fff;
     cursor: pointer;
     font-size: 1rem;
-    background-color: #6c757d;
-    border-color: #6c757d;
+    background-color: #177a98;
+    border-color: #fff;
     width: 100%;
+    border-radius: 0;
+}
+.inwards_button:hover {
+  background-color: #4CAF50;
+  color: white;
+}
+.inwards_button_group{
+  font-family: "Source Sans Pro", sans-serif;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+  background-color: #177a98;
+  border-color: #177a98;
+  width: 100%;
+  border-radius: 0;
+}
+.inwards_button_group:hover {
+  background-color: #4CAF50;
+  color: white;
 }
 .inwards_card{
-    background-color: #6c757d;
+    background-color: #177a98;
+    border-color: #177a98;
+    height: 100%;
+    width: 100%;
 
 }
 .inwards_button .fa {
@@ -17,4 +81,111 @@
 .c3-axis-y text 
 {
   font-size: 12px;
+}
+
+html {
+    font-family: Lato, 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    font-size: 14px;
+}
+
+.table {
+    border: none;
+}
+
+.table-definition thead th:first-child {
+    pointer-events: none;
+    background: white;
+    border: none;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.page-item > * {
+    border: none;
+}
+
+.custom-checkbox {
+  min-height: 1rem;
+  padding-left: 0;
+  margin-right: 0;
+  cursor: pointer; 
+}
+  .custom-checkbox .custom-control-indicator {
+    content: "";
+    display: inline-block;
+    position: relative;
+    width: 30px;
+    height: 10px;
+    background-color: #818181;
+    border-radius: 15px;
+    margin-right: 10px;
+    -webkit-transition: background .3s ease;
+    transition: background .3s ease;
+    vertical-align: middle;
+    margin: 0 16px;
+    box-shadow: none; 
+  }
+    .custom-checkbox .custom-control-indicator:after {
+      content: "";
+      position: absolute;
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      background-color: #f1f1f1;
+      border-radius: 21px;
+      box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.4);
+      left: -2px;
+      top: -4px;
+      -webkit-transition: left .3s ease, background .3s ease, box-shadow .1s ease;
+      transition: left .3s ease, background .3s ease, box-shadow .1s ease; 
+    }
+  .custom-checkbox .custom-control-input:checked ~ .custom-control-indicator {
+    background-color: #4CAF50;
+    background-image: none;
+    box-shadow: none !important; 
+  }
+    .custom-checkbox .custom-control-input:checked ~ .custom-control-indicator:after {
+      background-color: #4CAF50;
+      left: 15px; 
+    }
+  .custom-checkbox .custom-control-input:focus ~ .custom-control-indicator {
+    box-shadow: none !important; 
+  }
+ 
+.nav-tabs > li {
+    position:relative;
+}
+.nav-tabs > li > a {
+    display:inline-block;
+}
+.nav-tabs > li > span {
+    display:none;
+    cursor:pointer;
+    position:absolute;
+    right: 6px;
+    top: 8px;
+    color: red;
+}
+.nav-tabs > li:hover > span {
+    display: inline-block;
+}
+.box {
+  box-shadow:
+  0 2.8px 2.2px rgba(0, 0, 0, 0.034),
+  0 6.7px 5.3px rgba(0, 0, 0, 0.048),
+  0 12.5px 10px rgba(0, 0, 0, 0.06),
+  0 22.3px 17.9px rgba(0, 0, 0, 0.072),
+  0 41.8px 33.4px rgba(0, 0, 0, 0.086),
+  0 100px 80px rgba(0, 0, 0, 0.12)
+;
+  background: white;
+  border-radius: 5px;
+}
+.modal_center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }

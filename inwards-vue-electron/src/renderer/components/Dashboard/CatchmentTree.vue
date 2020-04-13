@@ -1,7 +1,7 @@
 <template>
   <div>
-     <div class="card">
-        <div class="card-header bg-secondary"><h6 style="color: white;"><i class="fa fa-map-marker" style="padding-right: 10px;"></i>Stations</h6>
+     <div class="card rounded-0">
+        <div class="card-header inwards_card"><h6 style="color: white;"><i class="fa fa-map-marker" style="padding-right: 10px;"></i>Stations<i class="fa fa-refresh" style="float:right; color: white"></i></h6>
           <div style="float:right" class="input-group mb-2 mr-sm-2">
             <div class="input-group-prepend">
                 <div class="input-group-text"><i class="fa fa-search" aria-hidden="true"></i></div>
@@ -9,7 +9,7 @@
             <input type="text" class="form-control" id="catchmentSearchInput" placeholder="Search">
           </div>
         </div>
-        <div class="card-body jstree-container">
+        <div class="card-body jstree-container" style="max-height:300px; height: 300px;">
           <div v-if='loading'>Loading...</div>
           <div v-else>
               <div id="jstree-div" style="font-size: 14px;">
