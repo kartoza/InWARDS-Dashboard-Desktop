@@ -64,7 +64,7 @@
         <div class="col-md-9 no-float" style="background: #1E1E1E;">
           <div class="row">
             <div class="col-md-6">
-              <Chart ref="chartComponent" style="margin-top: 5px;"/>
+              <UnverifiedChart ref="chartComponent" style="margin-top: 5px;"/>
             </div>
             <div class="col-md-6">
               <BoxChart ref="boxComponent" style="margin-top: 5px;"/>
@@ -96,7 +96,7 @@
   import Header from '@/components/Header';
   import MapDashboard from './MapDashboard';
   import CatchmentTree from './CatchmentTree';
-  import Chart from './Chart';
+  import UnverifiedChart from './UnverifiedChart';
   import DurationCurve from './DurationCurve';
   import BoxChart from './BoxChart';
   import Station from './Station';
@@ -177,7 +177,7 @@
       MapDashboard,
       CatchmentTree,
       BoxChart,
-      Chart,
+      UnverifiedChart,
       DurationCurve,
       Station
     },

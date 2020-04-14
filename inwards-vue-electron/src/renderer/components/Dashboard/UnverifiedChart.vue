@@ -1,44 +1,18 @@
-<template>
-  <div class="card rounded-0 box" v-bind:style="styleObject">
-    <div class="card-header inwards_card">
-   <div class="row">
-    <div class="col-md-12">  
-    <h6 style="color: white; margin-top: 10px; width: 50%; float: left;">Unverified Discharge Timeseries</h6>
-      <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups" style="float: right;">
-        <div class="btn-group mr-2" role="group" aria-label="First group">
-            <button type="button" class="btn inwards_button_group" data-toggle="tooltip" data-placement="top" title="Zoom"><i class="fa fa-search-plus" style="padding-right: 10px;"></i></button>
-            <button type="button" class="btn inwards_button_group" data-toggle="tooltip" data-placement="top" title="Tooltip"><i class="fa fa-question-circle" style="padding-right: 10px;"></i></button>
-            <button type="button" class="btn inwards_button_group" data-toggle="tooltip" data-placement="top" title="Download"><i class="fa fa-download" style="padding-right: 10px;"></i></button>
-            <button type="button" class="btn inwards_button_group" data-toggle="tooltip" data-placement="top" title="Savee"><i class="fa fa-floppy-o" style="padding-right: 10px;"></i></button>
-            <button type="button" class="btn inwards_button_group" data-toggle="tooltip" data-placement="top" title="Add to your dashboard"><i class="fa fa-plus" style="padding-right: 10px;"></i></button>
-          </div>
-      </div>
-    </div>
-    </div>
-    </div>
-    <div class="card-body chart-container">
-      <section v-if="errored">
-        <p>We're sorry, we're not able to retrieve this information at the moment, please try back later</p>
-      </section>
-      <section v-else>
-        <div v-if='loading'>Loading...</div>
-        <div v-else>
-          <div id="chart" style="height: 100%;"></div>
-        </div>
-      </section>
-    </div>
-  </div>
-</template>
 <script>
   import 'c3/c3.min.css';
   import c3 from 'c3';
   import {timeFormat} from 'd3-time-format';
   import axios from 'axios';
+  import ChartContainer from './ChartContainer';
   require('promise.prototype.finally').shim();
 
   export default {
+    extends: ChartContainer,
+    chartDisplayed: false,
     data () {
       return {
+        chartTitle: 'Unverified timeseries',
+        chartId: 'unverified-timeseries',
         chartData: null,
         errored: false,
         loading: true,
@@ -46,7 +20,6 @@
           display: 'none'
         },
         baseUrl: 'http://inwards.award.org.za/app_json/unverified_timeseries.php',
-        testUrl: 'http://inwards.award.org.za/app_json/unverified_timeseries.php?stations=B2H014%2CB2R001&sd=2020-02-01&ed=2020-02-17&type=0',
         urlParameters: {
           stations: [],
           sd: '',
@@ -57,15 +30,22 @@
     },
     methods: {
       _fetchChartData () {
+        let self = this;
         console.log('Fetching...');
         this.loading = true;
         const url = `${this.baseUrl}?${this.dictToUri(this.urlParameters)}`;
-        console.log(url);
+        if (!self.mounted) {
+          setTimeout(function () {
+            self._fetchChartData();
+          }, 1000);
+        }
         axios.get(url).then(response => {
           let chartData = response.data;
+          self.chartDisplayed = true;
+          self.chartUrl = url;
           setTimeout(() => {
             c3.generate({
-              bindto: '#chart',
+              bindto: '#' + self.chartId,
               data: chartData,
               zoom: {
                 enabled: true,
@@ -102,7 +82,11 @@
                 show: false
               },
               color: {
-                pattern: ['rgba(128,0,0, 0.3)', 'rgba(255, 0, 0, 0.3)', 'rgba(255, 106, 0, 0.3)', 'rgba(255, 216, 0, 0.3)', 'rgba(0, 255, 33, 0.3)', 'rgba(0, 38, 255, 0.3)', 'rgb(0,0,0)', 'rgb(105,105,105)', '#6b1135', '#9a0410', '#90cb9e', '#fecb9d', '#5f9052', '#3d7d7f', '#8ca227', '#1a0333', '#907510']
+                pattern: [
+                  'rgba(128,0,0, 0.3)', 'rgba(255, 0, 0, 0.3)', 'rgba(255, 106, 0, 0.3)',
+                  'rgba(255, 216, 0, 0.3)', 'rgba(0, 255, 33, 0.3)', 'rgba(0, 38, 255, 0.3)',
+                  'rgb(0,0,0)', 'rgb(105,105,105)', '#6b1135', '#9a0410', '#90cb9e', '#fecb9d',
+                  '#5f9052', '#3d7d7f', '#8ca227', '#1a0333', '#907510']
               },
               line: {
                 connectNull: false

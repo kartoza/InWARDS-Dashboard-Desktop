@@ -5,6 +5,7 @@ const stateStore = {
   keys: {
     selectedCatchments: 'selectedCatchments',
     selectedWMAs: 'selectedWMAs',
+    selectedCharts: 'selectedCharts',
     dateStart: 'dateStart',
     dateEnd: 'dateEnd'
   },
@@ -16,7 +17,7 @@ const stateStore = {
   },
   setState (key, newValue) {
     const self = this;
-    this.print(`Set state ${key} to ${newValue}`);
+    this.print(`Set state ${key} to ${JSON.stringify(newValue)}`);
     this.state[key] = newValue;
     db.update({ type: 'user_states' }, {
       $set: self.state
@@ -31,8 +32,6 @@ const stateStore = {
       callback(this.state[key]);
     } else {
       db.find({ type: 'user_states' }, function (err, docs) {
-        // docs is an array containing documents Mars, Earth, Jupiter
-        // If no document is found, docs is equal to []
         if (err) {
           self.print(err);
           return false;
@@ -49,6 +48,7 @@ const stateStore = {
     if (this.state.hasOwnProperty(key)) {
       this.print(`Clear state for ${key}`);
       this.state[key] = null;
+      this.setState(key, null);
     }
   }
 };
