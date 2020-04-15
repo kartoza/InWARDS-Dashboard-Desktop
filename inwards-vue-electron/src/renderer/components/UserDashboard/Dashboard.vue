@@ -99,6 +99,8 @@
 import stateStore from '../../store/state_handler';
 import UnverifiedChart from '../Dashboard/UnverifiedChart';
 import UnverifiedDischargeDurationChart from '../Dashboard/DurationCurve';
+import BoxChart from '../Dashboard/BoxChart';
+import StationImage from '../Dashboard/Station';
 import router from '@/router/index';
 import $ from 'jquery';
 import Muuri from 'muuri';
@@ -109,9 +111,12 @@ export default {
     return {
       charts: {
         'unverified-timeseries': UnverifiedChart,
-        'unverified-discharge-duration-curve': UnverifiedDischargeDurationChart
+        'unverified-discharge-duration-curve': UnverifiedDischargeDurationChart,
+        'station': StationImage,
+        'unverified-discharge-boxplot': BoxChart
       },
-      currentCharts: {}
+      currentCharts: {},
+      grid: null
     };
   },
   mounted () {
@@ -131,11 +136,18 @@ export default {
       stateStore.getState(
         stateStore.keys.selectedCharts,
         function (selectedCharts) {
+          console.log(selectedCharts);
           self.currentCharts = Object.assign({}, selectedCharts);
           for (let key in selectedCharts) {
             let ref = `chartComponent-${key}`;
             let chartId = selectedCharts[key]['chartId'];
+            if (!self.charts[chartId]) {
+              continue;
+            }
             let stations = selectedCharts[key]['chartStations'];
+            if (stations.length < 1) {
+              continue;
+            }
             let ChartComponent = Vue.extend(self.charts[chartId]);
             let chart = new ChartComponent({
               data: {
@@ -147,15 +159,18 @@ export default {
             itemDiv.html(itemContentDiv);
             $chartsContainer.append(itemDiv);
             itemContentDiv.html(chart.$el);
+            chart.deletable = true;
             chart.displayChart(
               stations,
               startDate,
               endDate
             );
+            chart.removed = self.itemRemoved;
           }
           // Make the grid draggable and sortable
-          let grid = new Muuri('.grid', {
+          self.grid = new Muuri('.grid', {
             dragEnabled: true,
+            itemDraggingClass: 'drag-item-btn',
             layoutOnInit: false,
             dragSortHeuristics: {
               sortInterval: 10,
@@ -177,21 +192,25 @@ export default {
           });
           // Sort the items before the initial layout
           // and do the initial layout
-          grid.sort('id', {layout: 'instant'});
+          self.grid.sort('id', {layout: 'instant'});
 
-          grid.on('dragEnd', self.afterDragged);
+          self.grid.on('move', self.afterMoved);
         }
       );
     },
-    afterDragged (item, event) {
-      console.log(event);
-      let grid = item.getGrid();
+    afterMoved (data) {
+      let grid = data.item.getGrid();
       let items = grid.getItems();
       for (let i = 0; i < items.length; i++) {
         let key = items[i].getElement().children[0].dataset.key;
         this.currentCharts[key]['order'] = i;
       }
       stateStore.setState(stateStore.keys.selectedCharts, this.currentCharts);
+    },
+    itemRemoved (itemId) {
+      itemId = itemId.replace('chartComponent-', '');
+      console.log(this.currentCharts[itemId]['order']);
+      this.grid.remove(this.currentCharts[itemId]['order'], {removeElements: true});
     }
   }
 };

@@ -12,19 +12,7 @@
       return {
         chartTitle: 'Unverified timeseries',
         chartId: 'unverified-timeseries',
-        chartData: null,
-        errored: false,
-        loading: true,
-        styleObject: {
-          display: 'none'
-        },
-        baseUrl: 'http://inwards.award.org.za/app_json/unverified_timeseries.php',
-        urlParameters: {
-          stations: [],
-          sd: '',
-          ed: '',
-          type: 0
-        }
+        baseUrl: 'http://inwards.award.org.za/app_json/unverified_timeseries.php'
       };
     },
     methods: {

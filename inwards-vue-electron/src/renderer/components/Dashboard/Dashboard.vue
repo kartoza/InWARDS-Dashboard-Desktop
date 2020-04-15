@@ -209,13 +209,13 @@
         }
         let bxChart = document.getElementById('bx').checked;
         if (bxChart === true) {
-          this.$refs.boxComponent.displayBox(selectedStations, this.formatDate(dateStart), this.formatDate(dateEnd));
+          this.$refs.boxComponent.displayChart(selectedStations, this.formatDate(dateStart), this.formatDate(dateEnd));
         }
         let fdcChart = document.getElementById('fdc').checked;
         if (fdcChart === true) {
           this.$refs.durationComponent.displayChart(selectedStations, this.formatDate(dateStart), this.formatDate(dateEnd));
         }
-        this.$refs.stationComponent.displayStationImages(selectedStations);
+        this.$refs.stationComponent.displayChart(selectedStations, this.formatDate(dateStart), this.formatDate(dateEnd));
       },
       fetchStations () {
         let self = this;
