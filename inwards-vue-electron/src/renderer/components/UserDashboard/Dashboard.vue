@@ -6,59 +6,13 @@
           <div class="card rounded-0" style="margin-top: 5px; margin-bottom: 5px;">
             <div class="card-body">
               <button class="btn rounded-0 inwards_button" @click="backToMapSelect()" type="button">
-                <i class="fa fa-chevron-left"></i>Back to Dashbaord Selection
+                <i class="fa fa-chevron-left"></i>Back to Dashboard Selection
               </button>
             </div>
           </div>
           <!-- <CatchmentTree ref="catchmentTree"/> -->
           <div class="v-space"></div>
-          <!-- <MapDashboard ref="mapDashboard"/> -->
-          <div class="v-space"></div>
-          <div class="card rounded-0">
-            <div class="card-body">
-              <div class="row">
-                <div class="col-sm-6" style="padding-right: 2px;">
-                  <div class="form-group">
-                    <label for="dateStart" style="padding-left: 8px;">Start Date:</label> 
-                    <input type="date" class="form-control" id="dateStart" style="margin-left: 4px;">
-                  </div>
-                </div>
-                <div class="col-sm-6" style="padding-left: 2px;">
-                  <div class="form-group">
-                    <label for="dateEnd" style="padding-left: 8px;">End Date:</label>
-                    <input type="date" class="form-control" id="dateEnd" style="margin-right: 10px;" @onload="setDates()">
-                  </div>
-                </div>
-              </div>
-              <div class="row" style="margin-top: 5px; margin-bottom: 5px;">
-                  <div class="col-md-4">
-                     <label class="custom-control custom-checkbox" style="margin-left: 5px">
-                      <input id="ts" type="checkbox" class="custom-control-input" checked="true">T/S
-                      <span class="custom-control-indicator"></span>
-                  </label>
-                  </div>
-                  <div class="col-md-4">
-                     <label class="custom-control custom-checkbox">
-                      <input id="bx" type="checkbox" class="custom-control-input" checked="true">Boxplot
-                      <span class="custom-control-indicator"></span>
-                  </label>
-                  </div>
-                  <div class="col-md-4">
-                     <label class="custom-control custom-checkbox">
-                      <input id="fdc" type="checkbox" class="custom-control-input" checked="true">FDC
-                      <span class="custom-control-indicator"></span>
-                  </label>
-                </div>
-              </div>
-                <div class="row">
-                <div class="col-md-12">
-                <button class="btn inwards_button" @click="fetchUnverified()" type="button" style="width: 100%">
-                  <i class="fa fa-line-chart"></i>Chart Unverified
-                </button>
-                </div>
-              </div>
-            </div>
-          </div>
+          <MapDashboard ref="mapDashboard"/>
           <div class="v-space"></div>
         </div>
         <div class="col-md-9 no-float" style="background: #1E1E1E;">
@@ -100,6 +54,7 @@ import stateStore from '../../store/state_handler';
 import UnverifiedChart from '../Dashboard/UnverifiedChart';
 import UnverifiedDischargeDurationChart from '../Dashboard/DurationCurve';
 import BoxChart from '../Dashboard/BoxChart';
+import MapDashboard from '../Dashboard/MapDashboard';
 import StationImage from '../Dashboard/Station';
 import router from '@/router/index';
 import $ from 'jquery';
@@ -119,12 +74,35 @@ export default {
       grid: null
     };
   },
+  components: {
+    MapDashboard
+  },
   mounted () {
+    this.mapDashboardRef = this.$refs.mapDashboard;
+    this.mapDashboardRef.connectedToTree = false;
     this.getSelectedCharts();
+    this.getStations();
   },
   methods: {
     backToMapSelect () {
       router.push({ path: '/' });
+    },
+    getStations () {
+      let self = this;
+      stateStore.getState(
+        stateStore.keys.selectedStations,
+        function (selectedStations) {
+          let features = [];
+          for (let key in selectedStations) {
+            features.push(selectedStations[key]['feature']);
+          }
+          let featureCollection = {
+            'type': 'FeatureCollection',
+            'features': features
+          };
+          self.mapDashboardRef.loadStationsToMap(featureCollection);
+        }
+      );
     },
     getSelectedCharts () {
       let self = this;
@@ -211,6 +189,13 @@ export default {
       itemId = itemId.replace('chartComponent-', '');
       console.log(this.currentCharts[itemId]['order']);
       this.grid.remove(this.currentCharts[itemId]['order'], {removeElements: true});
+      let items = this.grid.getItems();
+      for (let i = 0; i < items.length; i++) {
+        let key = items[i].getElement().children[0].dataset.key;
+        this.currentCharts[key]['order'] = i;
+      }
+      delete this.currentCharts[itemId];
+      stateStore.setState(stateStore.keys.selectedCharts, this.currentCharts);
     }
   }
 };

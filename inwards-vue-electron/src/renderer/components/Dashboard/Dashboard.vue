@@ -110,6 +110,7 @@
       return {
         stationsApi: 'http://inwards.award.org.za/app_json/stations.php',
         stationsCoordinates: {}, // To stored all stations with their coordinates
+        stationsFeatures: {}, // To stored station features
         stationsRequest: null,
         selectedStations: [],
         selectedWMAs: []
@@ -132,6 +133,9 @@
       });
       self.$bus.$on('refreshStations', () => {
         self.fetchStations();
+      });
+      self.$bus.$on('addStationsToStore', (stations, chartStoredId) => {
+        self.addStationsToStore(stations, chartStoredId);
       });
       stateStore.getState(
         stateStore.keys.dateEnd,
@@ -237,8 +241,8 @@
           wmaNames[i] = `'${wmaNames[i]}'`;
         }
         let url = `${self.stationsApi}?wma=${wmaNames.join()}`;
-        console.log(url);
         let stationFile = `${dir}/${url.hashCode()}.json`;
+        console.log(stationFile);
         // Check if online
         if (navigator.onLine) {
           let cancelToken = null;
@@ -246,6 +250,7 @@
             cancelToken = self.stationsRequest.token;
           }
           axios.get(url, { cancelToken: cancelToken }).then(response => {
+            console.log(response.data);
             self.mapDashboardRef.loadStationsToMap(response.data);
             self.createCatchmentTree(response.data);
             fs.writeFileSync(stationFile, JSON.stringify(response.data));
@@ -260,6 +265,36 @@
             self.createCatchmentTree(stationsData);
           }
         }
+      },
+      addStationsToStore (stations, chartStoredId) {
+        let self = this;
+        stateStore.clearState(stateStore.keys.selectedStations);
+        stateStore.getState(
+          stateStore.keys.selectedStations,
+          function (selectedStations) {
+            console.log(selectedStations);
+            if (!selectedStations) {
+              selectedStations = {};
+            }
+            for (let i = 0; i < stations.length; i++) {
+              if (!selectedStations[stations[i]]) {
+                selectedStations[stations[i]] = {
+                  'feature': self.stationsFeatures[stations[i]],
+                  'stationCoord': self.stationsCoordinates[stations[i]],
+                  'chartStored': [chartStoredId]
+                };
+              } else {
+                if (selectedStations[stations[i]]['chartStored'].indexOf(chartStoredId) < 0) {
+                  selectedStations[stations[i]]['chartStored'].push(chartStoredId);
+                }
+              }
+            }
+            stateStore.setState(
+              stateStore.keys.selectedStations,
+              selectedStations
+            );
+          }
+        );
       },
       generateTreeData (dictionary) {
         let treeData = [];
@@ -291,17 +326,20 @@
           let station = stationsData.features[i]['properties']['station'];
           let place = stationsData.features[i]['properties']['place'];
           let latestReading = stationsData.features[i]['properties']['latest'];
+          this.stationsFeatures[station] = stationsData.features[i];
           this.stationsCoordinates[station] = stationsData.features[i].geometry.coordinates;
           if (catchmentsData.hasOwnProperty(secondary)) {
+            let stationName = '';
             if (latestReading != null) {
-              catchmentsData[secondary].push(station + ': ' + place + ': ' + latestReading.toString().slice(0, 10));
-              catchmentsData[secondary].sort();
+              stationName = station + ': ' + place + ': ' + latestReading.toString().slice(0, 10);
             } else {
-              catchmentsData[secondary].push('Problem with Station');
-              catchmentsData[secondary].sort();
+              stationName = 'Problem with Station';
             }
+            catchmentsData[secondary].push(stationName);
+            catchmentsData[secondary].sort();
           }
         }
+        console.log(catchmentsData);
         let treeData = self.generateTreeData(catchmentsData);
         this.catchmentTreeRef.createTree(treeData, this.onCatchmentTreeSelectedHandler, this.onTreeReady);
       },

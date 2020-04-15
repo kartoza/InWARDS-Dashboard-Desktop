@@ -7,7 +7,8 @@ const stateStore = {
     selectedWMAs: 'selectedWMAs',
     selectedCharts: 'selectedCharts',
     dateStart: 'dateStart',
-    dateEnd: 'dateEnd'
+    dateEnd: 'dateEnd',
+    selectedStations: 'selectedStations'
   },
   state: {},
   print (message) {

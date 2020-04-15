@@ -53,6 +53,7 @@ export default {
       chartData: null,
       errored: false,
       loading: true,
+      stationsCoordinates: {},
       styleObject: {
         display: 'none'
       }
@@ -77,7 +78,8 @@ export default {
     addToStore () {
       let self = this;
       let stations = this.urlParameters['stations'];
-      let chartStoreId = this.chartId + '-' + stations.join(',');
+      let chartStoreId = self.chartId + '-' + stations.join(',');
+      self.$bus.$emit('addStationsToStore', stations, chartStoreId);
       stateStore.getState(
         stateStore.keys.selectedCharts,
         function (selectedCharts) {
