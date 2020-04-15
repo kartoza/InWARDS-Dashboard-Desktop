@@ -64,19 +64,33 @@ export default {
             }
             selectedCharts[chartStoreId] = {
               'chartId': self.chartId,
-              'chartStations': stations
+              'chartStations': stations,
+              'order': Object.keys(selectedCharts).length - 1
             };
           } else {
             selectedCharts = {};
             selectedCharts[chartStoreId] = {
               'chartId': self.chartId,
-              'chartStations': stations
+              'chartStations': stations,
+              'order': 0
             };
           }
           alert('Successfully added to user dashboard');
           stateStore.setState(stateStore.keys.selectedCharts, selectedCharts);
         }
       );
+    },
+    fetchChartData () {
+      // Override this function get the chart data
+      return false;
+    },
+    displayChart (stations, sd, ed, type = 0) {
+      this.styleObject.display = 'block';
+      this.urlParameters.stations = stations;
+      this.urlParameters.sd = sd;
+      this.urlParameters.ed = ed;
+      this.urlParameters.type = type;
+      this.fetchChartData();
     }
   }
 };

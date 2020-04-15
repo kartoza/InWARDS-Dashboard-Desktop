@@ -213,7 +213,7 @@
         }
         let fdcChart = document.getElementById('fdc').checked;
         if (fdcChart === true) {
-          this.$refs.durationComponent.displayDurationCurve(selectedStations, this.formatDate(dateStart), this.formatDate(dateEnd));
+          this.$refs.durationComponent.displayChart(selectedStations, this.formatDate(dateStart), this.formatDate(dateEnd));
         }
         this.$refs.stationComponent.displayStationImages(selectedStations);
       },

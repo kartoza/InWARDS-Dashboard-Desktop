@@ -34,6 +34,7 @@
                     <button class="btn inwards_button" style="width: 100%" @click="saveSelection()" type="button">Verified Dashboard<i class="fa fa-chevron-right" style="padding-left: 10px;"></i></button>
                     <button class="btn inwards_button" style="width: 100%" @click="saveSelection()" type="button">WQ Dashboard<i class="fa fa-chevron-right" style="padding-left: 10px;"></i></button>
                     <button class="btn inwards_button" style="width: 100%" @click="saveSelection()" type="button">Biodiversity Dashboard<i class="fa fa-chevron-right" style="padding-left: 10px;"></i></button>
+                    <button class="btn inwards_button" style="width: 100%" @click="goToUserDefinedDashboard()" type="button">User Defined Dashboard<i class="fa fa-chevron-right" style="padding-left: 10px;"></i></button>
                   </div>
                 </div>
                 </div>
@@ -296,6 +297,9 @@
         }
         stateStore.setState(stateStore.keys.selectedWMAs, _selectedWMA);
         router.push({ path: 'dashboard' });
+      },
+      goToUserDefinedDashboard () {
+        router.push({ path: 'user-dashboard' });
       }
     },
     components: {

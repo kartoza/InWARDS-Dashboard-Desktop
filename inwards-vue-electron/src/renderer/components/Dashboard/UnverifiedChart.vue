@@ -8,7 +8,6 @@
 
   export default {
     extends: ChartContainer,
-    chartDisplayed: false,
     data () {
       return {
         chartTitle: 'Unverified timeseries',
@@ -29,19 +28,18 @@
       };
     },
     methods: {
-      _fetchChartData () {
+      fetchChartData () {
         let self = this;
         console.log('Fetching...');
         this.loading = true;
         const url = `${this.baseUrl}?${this.dictToUri(this.urlParameters)}`;
         if (!self.mounted) {
           setTimeout(function () {
-            self._fetchChartData();
+            self.fetchChartData();
           }, 1000);
         }
         axios.get(url).then(response => {
           let chartData = response.data;
-          self.chartDisplayed = true;
           self.chartUrl = url;
           setTimeout(() => {
             c3.generate({
@@ -97,14 +95,6 @@
           console.log(error);
           this.errored = true;
         }).finally(() => { this.loading = false; });
-      },
-      displayChart (stations, sd, ed, type = 0) {
-        this.styleObject.display = 'block';
-        this.urlParameters.stations = stations;
-        this.urlParameters.sd = sd;
-        this.urlParameters.ed = ed;
-        this.urlParameters.type = type;
-        this._fetchChartData();
       }
     }
   };
