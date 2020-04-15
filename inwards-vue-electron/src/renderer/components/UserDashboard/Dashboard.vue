@@ -10,7 +10,7 @@
               </button>
             </div>
           </div>
-          <!-- <CatchmentTree ref="catchmentTree"/> -->
+          <CatchmentTree ref="catchmentTree"/>
           <div class="v-space"></div>
           <MapDashboard ref="mapDashboard"/>
           <div class="v-space"></div>
@@ -55,6 +55,7 @@ import UnverifiedChart from '../Dashboard/UnverifiedChart';
 import UnverifiedDischargeDurationChart from '../Dashboard/DurationCurve';
 import BoxChart from '../Dashboard/BoxChart';
 import MapDashboard from '../Dashboard/MapDashboard';
+import CatchmentTree from '../Dashboard/CatchmentTree';
 import StationImage from '../Dashboard/Station';
 import router from '@/router/index';
 import $ from 'jquery';
@@ -75,10 +76,13 @@ export default {
     };
   },
   components: {
-    MapDashboard
+    MapDashboard,
+    CatchmentTree
   },
   mounted () {
     this.mapDashboardRef = this.$refs.mapDashboard;
+    this.catchmentTreeRef = this.$refs.catchmentTree;
+    this.catchmentTreeRef.selectable = false;
     this.mapDashboardRef.connectedToTree = false;
     this.getSelectedCharts();
     this.getStations();
@@ -101,6 +105,7 @@ export default {
             'features': features
           };
           self.mapDashboardRef.loadStationsToMap(featureCollection);
+          self.createCatchmentTree(featureCollection);
         }
       );
     },
@@ -196,6 +201,55 @@ export default {
       }
       delete this.currentCharts[itemId];
       stateStore.setState(stateStore.keys.selectedCharts, this.currentCharts);
+    },
+    generateTreeData (dictionary) {
+      let treeData = [];
+      let self = this;
+      $.each(dictionary, function (key, catchment) {
+        let hasChildren = false;
+        if (typeof catchment === 'object' || catchment instanceof Array) {
+          hasChildren = true;
+        }
+        let c = {
+          text: hasChildren ? key : catchment,
+          id: hasChildren ? key : catchment,
+          type: hasChildren ? 'layer' : 'station'
+        };
+        if (hasChildren) {
+          c['children'] = self.generateTreeData(catchment);
+        };
+        treeData.push(c);
+      });
+      return treeData;
+    },
+    createCatchmentTree (stationsData) {
+      // Start adding stations data to catchment
+      let catchmentsData = {};
+      for (let i = 0; i < stationsData.features.length; i++) {
+        // let primary = stationsData.features[i]['properties']['primary'];
+        let secondary = stationsData.features[i]['properties']['secondary'];
+        let station = stationsData.features[i]['properties']['station'];
+        let place = stationsData.features[i]['properties']['place'];
+        let latestReading = stationsData.features[i]['properties']['latest'];
+        if (!catchmentsData[secondary]) {
+          catchmentsData[secondary] = [];
+        }
+        if (catchmentsData[secondary]) {
+          let stationName = '';
+          if (latestReading != null) {
+            stationName = station + ': ' + place + ': ' + latestReading.toString().slice(0, 10);
+          } else {
+            stationName = 'Problem with Station';
+          }
+          catchmentsData[secondary].push(stationName);
+          catchmentsData[secondary].sort();
+        }
+      }
+      let treeData = this.generateTreeData(catchmentsData);
+      this.catchmentTreeRef.createTree(treeData, null, this.onTreeReady);
+    },
+    onTreeReady (event, data) {
+      this.catchmentTreeRef.expandAll();
     }
   }
 };

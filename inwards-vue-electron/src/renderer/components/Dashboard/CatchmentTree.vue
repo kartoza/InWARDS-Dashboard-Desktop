@@ -28,6 +28,7 @@
   export default {
     data () {
       return {
+        selectable: true,
         loading: true
       };
     },
@@ -50,7 +51,15 @@
         $jsTreeDiv.jstree(nodeBehaviour, node);
         $jsTreeDiv.jstree(true).get_node(node, true).children('.jstree-anchor').focus();
       },
+      expandAll () {
+        let $jsTreeDiv = $('#jstree-div');
+        $jsTreeDiv.jstree('open_all');
+      },
       createTree (jsonData, treeClicked, treeReady) {
+        let jsTreePlugins = [ 'wholerow', 'types', 'search' ];
+        if (this.selectable) {
+          jsTreePlugins.push('checkbox');
+        }
         for (let i = 0; i < jsonData.length; i++) {
           if (jsonData[i]['children'].length > 0) {
             for (let j = 0; j < jsonData[i]['children'].length; j++) {
@@ -67,7 +76,7 @@
             'core': {
               'data': jsonData
             },
-            'plugins': [ 'wholerow', 'checkbox', 'types', 'search' ],
+            'plugins': jsTreePlugins,
             'types': {
               'layer': {
                 'icon': iconTree
