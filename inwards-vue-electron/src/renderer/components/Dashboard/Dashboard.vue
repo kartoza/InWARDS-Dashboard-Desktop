@@ -268,7 +268,6 @@
       },
       addStationsToStore (stations, chartStoredId) {
         let self = this;
-        stateStore.clearState(stateStore.keys.selectedStations);
         stateStore.getState(
           stateStore.keys.selectedStations,
           function (selectedStations) {

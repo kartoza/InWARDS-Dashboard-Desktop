@@ -72,8 +72,9 @@ export default {
       // Call when item has been removed from store
     },
     removeFromStore () {
-      console.log('remove from store');
-      this.removed(this.chartId);
+      if (confirm('Are you sure you want to delete this from your dashboard?')) {
+        this.removed(this.chartId);
+      }
     },
     addToStore () {
       let self = this;

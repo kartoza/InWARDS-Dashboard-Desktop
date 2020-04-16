@@ -72,7 +72,8 @@ export default {
         'unverified-discharge-boxplot': BoxChart
       },
       currentCharts: {},
-      grid: null
+      grid: null,
+      currentStations: {}
     };
   },
   components: {
@@ -83,6 +84,7 @@ export default {
     this.mapDashboardRef = this.$refs.mapDashboard;
     this.catchmentTreeRef = this.$refs.catchmentTree;
     this.catchmentTreeRef.selectable = false;
+    this.catchmentTreeRef.refreshable = false;
     this.mapDashboardRef.connectedToTree = false;
     this.getSelectedCharts();
     this.getStations();
@@ -96,6 +98,7 @@ export default {
       stateStore.getState(
         stateStore.keys.selectedStations,
         function (selectedStations) {
+          self.currentStations = Object.assign({}, selectedStations);
           let features = [];
           for (let key in selectedStations) {
             features.push(selectedStations[key]['feature']);
@@ -192,15 +195,29 @@ export default {
     },
     itemRemoved (itemId) {
       itemId = itemId.replace('chartComponent-', '');
-      console.log(this.currentCharts[itemId]['order']);
       this.grid.remove(this.currentCharts[itemId]['order'], {removeElements: true});
       let items = this.grid.getItems();
       for (let i = 0; i < items.length; i++) {
         let key = items[i].getElement().children[0].dataset.key;
         this.currentCharts[key]['order'] = i;
       }
+      // -- Remove from station list
+      let stationId = itemId.split('-');
+      stationId = stationId[stationId.length - 1];
+      let station = this.currentStations[stationId];
+      let stationIndex = station['chartStored'].indexOf(itemId);
+      if (stationIndex > -1) {
+        this.currentStations[stationId]['chartStored'].splice(stationIndex, 1);
+      }
+      if (station['chartStored'].length === 0) {
+        delete this.currentStations[stationId];
+      }
       delete this.currentCharts[itemId];
       stateStore.setState(stateStore.keys.selectedCharts, this.currentCharts);
+      stateStore.setState(stateStore.keys.selectedStations, this.currentStations);
+      setTimeout(function () {
+        window.location.reload();
+      }, 500);
     },
     generateTreeData (dictionary) {
       let treeData = [];
