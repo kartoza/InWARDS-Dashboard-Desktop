@@ -2,7 +2,10 @@
   <div>
      <div class="card rounded-0">
         <div class="card-header inwards_card"><h6 style="color: white;"><i class="fa fa-map-marker" style="padding-right: 10px;"></i>Stations
-        <i class="fa fa-refresh" id="refresh-stations" v-on:click="refreshStations"></i></h6>
+        <span v-if='refreshable'>
+          <i class="fa fa-refresh" id="refresh-stations" v-on:click="refreshStations"></i>
+        </span>
+        </h6>
           <div style="float:right" class="input-group mb-2 mr-sm-2">
             <div class="input-group-prepend">
                 <div class="input-group-text"><i class="fa fa-search" aria-hidden="true"></i></div>
@@ -28,7 +31,9 @@
   export default {
     data () {
       return {
-        loading: true
+        selectable: true,
+        loading: true,
+        refreshable: true
       };
     },
     methods: {
@@ -50,7 +55,15 @@
         $jsTreeDiv.jstree(nodeBehaviour, node);
         $jsTreeDiv.jstree(true).get_node(node, true).children('.jstree-anchor').focus();
       },
+      expandAll () {
+        let $jsTreeDiv = $('#jstree-div');
+        $jsTreeDiv.jstree('open_all');
+      },
       createTree (jsonData, treeClicked, treeReady) {
+        let jsTreePlugins = [ 'wholerow', 'types', 'search' ];
+        if (this.selectable) {
+          jsTreePlugins.push('checkbox');
+        }
         for (let i = 0; i < jsonData.length; i++) {
           if (jsonData[i]['children'].length > 0) {
             for (let j = 0; j < jsonData[i]['children'].length; j++) {
@@ -67,7 +80,7 @@
             'core': {
               'data': jsonData
             },
-            'plugins': [ 'wholerow', 'checkbox', 'types', 'search' ],
+            'plugins': jsTreePlugins,
             'types': {
               'layer': {
                 'icon': iconTree

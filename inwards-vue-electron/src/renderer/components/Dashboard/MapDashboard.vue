@@ -120,6 +120,7 @@
           }),
           zIndex: 1
         }),
+        connectedToTree: true,
         selectedFeatures: [],
         featureDict: {},
         selectedWMA: [],
@@ -235,6 +236,7 @@
         this.map.getView().fit(this.defaultExtent);
       },
       loadStationsToMap (stationsGeoJSONData) {
+        console.log(stationsGeoJSONData);
         this.stationsVectorLayer.setSource(new VectorSource({
           features: (new GeoJSON({
             defaultDataProjection: 'EPSG:4326'
@@ -295,6 +297,12 @@
         self.map.forEachFeatureAtPixel(pixel, function (feature, layer) {
           let station = feature.get(self.keys.station);
           let isStationSelected = feature.get(self.keys.selected);
+          if (!self.connectedToTree) {
+            // Just show popup
+            content.innerHTML = `<p>${station.split(' ')[0]}</p>`;
+            self.overlay.setPosition(feature.getGeometry().getCoordinates());
+            return false;
+          }
           if (!station) return false;
           if (!isStationSelected) {
             feature.set(self.keys.selected, true);
