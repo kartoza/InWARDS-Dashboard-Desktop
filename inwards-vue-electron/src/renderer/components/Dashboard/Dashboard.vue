@@ -271,8 +271,7 @@
         stateStore.getState(
           stateStore.keys.selectedStations,
           function (selectedStations) {
-            console.log(selectedStations);
-            if (!selectedStations) {
+            if (!selectedStations || typeof selectedStations === 'undefined') {
               selectedStations = {};
             }
             for (let i = 0; i < stations.length; i++) {

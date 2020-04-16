@@ -98,6 +98,9 @@ export default {
       stateStore.getState(
         stateStore.keys.selectedStations,
         function (selectedStations) {
+          if (typeof selectedStations === 'undefined') {
+            return false;
+          }
           self.currentStations = Object.assign({}, selectedStations);
           let features = [];
           for (let key in selectedStations) {
