@@ -208,16 +208,18 @@ export default {
       let stationId = itemId.split('-');
       stationId = stationId[stationId.length - 1];
       let station = this.currentStations[stationId];
-      let stationIndex = station['chartStored'].indexOf(itemId);
-      if (stationIndex > -1) {
-        this.currentStations[stationId]['chartStored'].splice(stationIndex, 1);
-      }
-      if (station['chartStored'].length === 0) {
-        delete this.currentStations[stationId];
+      if (station && station.hasOwnProperty('chartStored')) {
+        let stationIndex = station['chartStored'].indexOf(itemId);
+        if (stationIndex > -1) {
+          this.currentStations[stationId]['chartStored'].splice(stationIndex, 1);
+        }
+        if (station['chartStored'].length === 0) {
+          delete this.currentStations[stationId];
+        }
+        stateStore.setState(stateStore.keys.selectedStations, this.currentStations);
       }
       delete this.currentCharts[itemId];
       stateStore.setState(stateStore.keys.selectedCharts, this.currentCharts);
-      stateStore.setState(stateStore.keys.selectedStations, this.currentStations);
       setTimeout(function () {
         window.location.reload();
       }, 500);
