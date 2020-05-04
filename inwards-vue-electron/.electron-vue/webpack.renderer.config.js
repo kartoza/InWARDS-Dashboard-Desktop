@@ -27,6 +27,7 @@ let rendererConfig = {
         renderer: path.join(__dirname, '../src/renderer/main.js')
     },
     externals: [
+      {sqlite3: 'sqlite3'},
         ...Object.keys(dependencies || {}).filter(d => !whiteListedModules.includes(d))
     ],
     module: {

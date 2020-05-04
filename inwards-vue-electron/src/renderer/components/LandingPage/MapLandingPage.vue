@@ -91,6 +91,7 @@
   import $ from 'jquery';
   import stateStore from '../../store/state_handler';
   import router from '@/router/index';
+  import {rawQuery} from '@/sqlite/index';
 
   export default {
     data () {
@@ -100,6 +101,10 @@
       };
     },
     mounted () {
+      rawQuery('SELECT id, email, user_pref FROM users', function (row) {
+        console.log(row);
+      });
+
       let self = this;
       // Create a map
       let map = new Map({
