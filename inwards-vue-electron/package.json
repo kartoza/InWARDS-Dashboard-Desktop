@@ -6,6 +6,7 @@
   "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
+    "rebuild": "./node_modules/.bin/electron-rebuild",
     "build": "node --max-old-space-size=4096 .electron-vue/build.js && electron-builder",
     "build:dir": "node --max-old-space-size=4096 .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node --max-old-space-size=4096 .electron-vue/build.js",
@@ -19,7 +20,7 @@
     "pack:renderer": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.renderer.config.js",
     "test": "npm run unit && npm run e2e",
     "unit": "karma start test/unit/karma.conf.js",
-    "postinstall": "npm run lint:fix"
+    "postinstall": "electron-builder install-app-deps"
   },
   "build": {
     "productName": "INWARDS",
@@ -57,6 +58,7 @@
     }
   },
   "dependencies": {
+    "sqlite3": "^4.2.0",
     "custom-electron-titlebar": "^3.2.2-hotfix62",
     "material-design-iconic-font": "^2.2.0",
     "plotly.js-dist": "^1.52.2",
@@ -66,8 +68,10 @@
     "vuex": "^3.0.1",
     "vuex-electron": "^1.0.0"
   },
+  "resolutions": { "**/node-abi": "^2.11.0" },
   "devDependencies": {
     "ajv": "^6.5.0",
+    "aws-sdk": "^2.662.0",
     "axios": "^0.18.1",
     "babel-core": "^6.26.3",
     "babel-eslint": "^8.2.3",
@@ -95,6 +99,7 @@
     "electron-builder": "^20.19.2",
     "electron-debug": "^1.5.0",
     "electron-devtools-installer": "^2.2.4",
+    "electron-rebuild": "^1.10.1",
     "eslint": "^4.19.1",
     "eslint-config-standard": "^11.0.0",
     "eslint-friendly-formatter": "^4.0.1",
@@ -128,6 +133,7 @@
     "promise.prototype.finally": "^3.1.2",
     "require-dir": "^1.0.0",
     "spectron": "^3.8.0",
+    "sqlite3": "^4.2.0",
     "style-loader": "^0.21.0",
     "url-loader": "^1.0.1",
     "vue-html-loader": "^1.2.4",

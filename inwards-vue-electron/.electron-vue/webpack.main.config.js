@@ -13,6 +13,7 @@ let mainConfig = {
     main: path.join(__dirname, '../src/main/index.js')
   },
   externals: [
+    'sqlite3',
     ...Object.keys(dependencies || {})
   ],
   module: {
