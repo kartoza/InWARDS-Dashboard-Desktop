@@ -242,7 +242,6 @@
         }
         let url = `${self.stationsApi}?wma=${wmaNames.join()}`;
         let stationFile = `${dir}/${url.hashCode()}.json`;
-        console.log(stationFile);
         // Check if online
         if (navigator.onLine) {
           let cancelToken = null;
