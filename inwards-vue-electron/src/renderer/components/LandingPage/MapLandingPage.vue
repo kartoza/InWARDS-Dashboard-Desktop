@@ -93,6 +93,7 @@
   import stateStore from '../../store/state_handler';
   import router from '@/router/index';
   import DatabaseLoaderComponent from '../DatabaseLoaderComponent';
+  import {dbReady} from '@/sqlite/index';
 
   export default {
     data () {
@@ -102,7 +103,9 @@
       };
     },
     mounted () {
-      this.$refs.databaseLoaderComponent.showModal();
+      if (!dbReady) {
+        this.$refs.databaseLoaderComponent.showModal();
+      }
       let self = this;
       // Create a map
       let map = new Map({
