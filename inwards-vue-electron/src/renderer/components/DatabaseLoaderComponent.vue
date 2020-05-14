@@ -29,10 +29,8 @@
   }
 </style>
 <script>
-  // import axios from 'axios';
   import $ from 'jquery';
   import {rawQuery, dbFilePath, dbUrl} from '@/sqlite/index';
-  // const app = require('electron').remote;
   const fs = require('fs');
   const request = require('request');
   export default {
