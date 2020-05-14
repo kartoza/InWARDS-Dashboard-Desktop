@@ -43,6 +43,7 @@
         </div> 
       </div>
     </div>
+    <DatabaseLoaderComponent ref="databaseLoaderComponent"/>
     <div class="map-container">
       <div class="container-fluid" style="height: 100%; width:100%">
         <div class="col-md-12" style="width: 100%; height: 100%; margin: 0; padding: 0;">
@@ -91,7 +92,8 @@
   import $ from 'jquery';
   import stateStore from '../../store/state_handler';
   import router from '@/router/index';
-  import {rawQuery} from '@/sqlite/index';
+  import DatabaseLoaderComponent from '../DatabaseLoaderComponent';
+  // import {rawQuery} from '@/sqlite/index';
 
   export default {
     data () {
@@ -101,9 +103,10 @@
       };
     },
     mounted () {
-      rawQuery('SELECT id, email, user_pref FROM users', function (row) {
-        console.log(row);
-      });
+      this.$refs.databaseLoaderComponent.showModal();
+      // rawQuery('SELECT id, email, user_pref FROM users', function (row) {
+      //   console.log(row);
+      // });
 
       let self = this;
       // Create a map
@@ -308,7 +311,8 @@
       }
     },
     components: {
-      Header
+      Header,
+      DatabaseLoaderComponent
     }
   };
 </script> 

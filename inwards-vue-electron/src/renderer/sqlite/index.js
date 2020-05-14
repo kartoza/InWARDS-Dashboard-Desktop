@@ -1,14 +1,18 @@
+/* eslint-disable no-unused-vars */
 const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
 let db;
+export let dbFilePath = '../../db/inwards_template.sqlite3';
+export let dbUrl = 'http://inwards.award.org.za/db/db_download.php';
+export let dbReady = false;
 
 function conn () {
   if (!db || !db.open) {
     db = new sqlite3.Database(
-      path.join(__dirname, '../assets', '/inwards_template.sqlite3'), sqlite3.OPEN_READWRITE, (err) => {
+      dbFilePath, sqlite3.OPEN_READWRITE, (err) => {
         if (err) {
           return console.error(err.message);
         } else {
+          dbReady = true;
           console.log('Connected to inward database.');
         }
       });
@@ -18,11 +22,11 @@ function conn () {
 
 export const rawQuery = (query, callback) => {
   let db = conn();
-  db.each(query, (err, row) => {
+  db.all(query, (err, rows) => {
     if (err) {
       console.error(err);
     } else {
-      callback(row);
+      callback(rows);
     }
   });
 };

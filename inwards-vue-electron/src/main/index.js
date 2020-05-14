@@ -1,6 +1,7 @@
 'use strict';
 
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
+const ProgressBar = require('electron-progressbar');
 
 /**
  * Set `__static` path to static files in production
@@ -11,6 +12,7 @@ if (process.env.NODE_ENV !== 'development') {
 }
 
 let mainWindow;
+let progressBar;
 const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
   : `file://${__dirname}/index.html`;
@@ -34,6 +36,26 @@ function createWindow () {
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
+
+  ipcMain.on('show-progressbar', showProgressbar);
+}
+
+function showProgressbar () {
+  if (progressBar) {
+    return;
+  }
+  progressBar = new ProgressBar({
+    text: 'Preparing data...',
+    detail: 'Wait...'
+  });
+  progressBar
+    .on('completed', function () {
+      console.info(`completed...`);
+      progressBar.detail = 'Task completed. Exiting...';
+    })
+    .on('aborted', function () {
+      console.info(`aborted...`);
+    });
 }
 
 app.on('ready', createWindow);
