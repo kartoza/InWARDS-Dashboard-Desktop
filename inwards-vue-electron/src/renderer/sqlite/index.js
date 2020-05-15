@@ -25,8 +25,9 @@ export const rawQuery = (query, callback) => {
   db.all(query, (err, rows) => {
     if (err) {
       console.error(err);
+      callback(null, err);
     } else {
-      callback(rows);
+      callback(rows, null);
     }
   });
 };

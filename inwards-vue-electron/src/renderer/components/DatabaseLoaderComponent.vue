@@ -92,6 +92,10 @@
           });
           let out = fs.createWriteStream(dbFilePath);
           req.pipe(out);
+          req.on('error', function (err) {
+            console.error(err);
+            reject(Error('Could not get a database from remote'));
+          });
           req.on('end', function () {
             resolve();
             self.testDatabase();
@@ -100,9 +104,16 @@
         this.addStatus('Fetching database from remote...', promise);
       },
       testDatabase () {
+        let self = this;
         var promise = new Promise(function (resolve, reject) {
           setTimeout(() => {
-            rawQuery('SELECT id, email, user_pref FROM users', function (row) {
+            rawQuery('SELECT id, email, user_pref FROM users', function (row, err) {
+              if (err) {
+                console.error(err);
+                reject(Error(err));
+                self.fetchDatabase();
+                return false;
+              }
               resolve('Database tested');
               setTimeout(() => {
                 $('#loader-modal').modal('hide');
