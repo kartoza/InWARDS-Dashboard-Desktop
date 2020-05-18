@@ -83,6 +83,8 @@ export default {
           loginModal.modal('hide');
           stateStore.setState(stateStore.keys.loginStatus, {
             'loggedIn': true,
+            'emailAddress': self.emailAddress,
+            'uniqueCode': self.uniqueCode,
             'timestamp': Date.now()
           });
           self.loggedIn = true;
