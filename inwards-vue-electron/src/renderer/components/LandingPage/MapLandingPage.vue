@@ -1,5 +1,6 @@
 <template>
   <div style="width: 100%; height: 100%; margin: 0; padding: 0;">
+    <StatusBar/>
     <Header/>
     <div id="overlay">
       <div class="row" style="height: 100%;">
@@ -43,8 +44,6 @@
         </div> 
       </div>
     </div>
-    <DatabaseLoaderComponent ref="databaseLoaderComponent"/>
-    <LoginComponent ref="loginComponent"/>
     <div class="map-container">
       <div class="container-fluid" style="height: 100%; width:100%">
         <div class="col-md-12" style="width: 100%; height: 100%; margin: 0; padding: 0;">
@@ -69,9 +68,7 @@
   import $ from 'jquery';
   import stateStore from '../../store/state_handler';
   import router from '@/router/index';
-  import DatabaseLoaderComponent from '../DatabaseLoaderComponent';
-  import LoginComponent from '../LoginComponent';
-  import {dbReady} from '@/sqlite/index';
+  import StatusBar from '../StatusBar';
 
   export default {
     data () {
@@ -81,9 +78,6 @@
       };
     },
     mounted () {
-      if (!dbReady) {
-        this.$refs.databaseLoaderComponent.showModal();
-      }
       let self = this;
       // Create a map
       let map = new Map({
@@ -271,9 +265,8 @@
       }
     },
     components: {
-      Header,
-      DatabaseLoaderComponent,
-      LoginComponent
+      StatusBar,
+      Header
     }
   };
 </script> 

@@ -1,12 +1,13 @@
 <template>
   <div style="height: 100%;">
+    <StatusBar/>
     <div class="container-fluid" style="height: 100%;">
       <div class="row" style="height: 100%;">
         <div class="col-md-3 no-float" style="background: #252526;">
           <div class="card rounded-0" style="margin-top: 5px; margin-bottom: 5px;">
             <div class="card-body">
               <button class="btn rounded-0 inwards_button" @click="backToMapSelect()" type="button">
-                <i class="fa fa-chevron-left"></i>Back to Dashbaord Selection
+                <i class="fa fa-chevron-left"></i>Back to Dashboard Selection
               </button>
             </div>
           </div>
@@ -103,6 +104,7 @@
   import router from '@/router/index';
   import $ from 'jquery';
   import stateStore from '../../store/state_handler';
+  import StatusBar from '../StatusBar';
   require('promise.prototype.finally').shim();
   
   export default {
@@ -183,7 +185,8 @@
       BoxChart,
       UnverifiedChart,
       DurationCurve,
-      Station
+      Station,
+      StatusBar
     },
     methods: {
       backToMapSelect () {
