@@ -44,34 +44,11 @@
       </div>
     </div>
     <DatabaseLoaderComponent ref="databaseLoaderComponent"/>
+    <LoginComponent ref="loginComponent"/>
     <div class="map-container">
       <div class="container-fluid" style="height: 100%; width:100%">
         <div class="col-md-12" style="width: 100%; height: 100%; margin: 0; padding: 0;">
           <div id="map"></div>
-          </div>
-        </div>
-      </div>
-      <div class="modal rounded-0 fade modal_center" tabindex="-1" id="login" data-keyboard="false" data-backdrop="static">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Please Verify Access</h5>
-            </div>
-            <div class="modal-body">
-              <form>
-                <div class="form-group">
-                  <label for="emailAddress">Email address</label>
-                  <input type="email" class="form-control rounded-0" id="emailAddress" aria-describedby="emailHelp" placeholder="Enter email">
-                  <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
-                </div>
-                <div class="form-group">
-                  <label for="uniqueCode">Unique Code</label>
-                  <input type="text" class="form-control rounded-0" id="uniqueCode" placeholder="Unique Code">
-                </div>
-                <button id="verifyCode" type="submit" class="btn rounded-0 inwards_button">Submit</button>
-                <button href="mailto:hugo@award.org.za" type="submit" class="btn rounded-0 inwards_button">Request Access</button>
-              </form>
-            </div>
           </div>
         </div>
       </div>
@@ -93,6 +70,7 @@
   import stateStore from '../../store/state_handler';
   import router from '@/router/index';
   import DatabaseLoaderComponent from '../DatabaseLoaderComponent';
+  import LoginComponent from '../LoginComponent';
   import {dbReady} from '@/sqlite/index';
 
   export default {
@@ -197,22 +175,6 @@
         }),
         zIndex: 1
       });
-      // $(document).ready(function () {
-      //   $('#login').modal('show');
-      // });
-      document.getElementById('verifyCode').addEventListener('click', function (element) {
-        let email = document.getElementById('emailAddress').value;
-        let code = document.getElementById('uniqueCode').value;
-        $.get('http://inwards.award.org.za/app_json/user_verification.php?email=' + email + '&code=' + code, function (data) {
-          if (data === 'true') {
-            $('#login').modal('hide');
-            alert('Successfully Verified!');
-          } else {
-            alert('Failed to Verifiy!');
-          }
-        });
-        console.log(email + 'code:' + code);
-      });
       document.getElementById('limpopo').addEventListener('change', function (element) {
         console.log(document.getElementById('limpopo').checked);
         let check = document.getElementById('limpopo').checked;
@@ -310,7 +272,8 @@
     },
     components: {
       Header,
-      DatabaseLoaderComponent
+      DatabaseLoaderComponent,
+      LoginComponent
     }
   };
 </script> 

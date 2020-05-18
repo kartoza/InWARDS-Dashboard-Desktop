@@ -25,6 +25,7 @@ Vue.config.productionTip = false;
 Vue.prototype.$db = db;
 Vue.prototype.$ = $;
 Vue.prototype.$bus = new Vue();
+Vue.prototype.isLoggedIn = false;
 
 /* eslint-disable no-new */
 new Vue({
