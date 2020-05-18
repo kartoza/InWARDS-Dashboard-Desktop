@@ -1,5 +1,6 @@
 <template>
   <div style="height: 100%;">
+    <StatusBar/>
     <div class="container-fluid" style="height: 100%;">
       <div class="row" style="height: 100%;">
         <div class="col-md-3 no-float" style="background: #252526;">
@@ -61,6 +62,7 @@ import router from '@/router/index';
 import $ from 'jquery';
 import Muuri from 'muuri';
 import Vue from 'vue';
+import StatusBar from '../StatusBar';
 
 export default {
   data () {
@@ -78,7 +80,8 @@ export default {
   },
   components: {
     MapDashboard,
-    CatchmentTree
+    CatchmentTree,
+    StatusBar
   },
   mounted () {
     this.mapDashboardRef = this.$refs.mapDashboard;
