@@ -30,9 +30,9 @@
 </style>
 <script>
   import $ from 'jquery';
-  import {rawQuery, dbFilePath, dbUrl} from '@/sqlite/index';
-  const fs = require('fs');
+  import {rawQuery, dbFilePath, dbUrl, isDbExist} from '@/sqlite/index';
   const request = require('request');
+  const fs = require('fs');
   export default {
     data () {
       return {
@@ -65,14 +65,7 @@
         let self = this;
         var promise = new Promise(function (resolve, reject) {
           setTimeout(() => {
-            let dir = '../../db';
-            // TODO : Create an util class for file storage
-            if (!fs.existsSync(dir)) {
-              fs.mkdirSync(dir);
-            }
-            let dbName = `inwards_template.sqlite3`;
-            self.dbFileName = dir + `/${dbName}`;
-            if (fs.existsSync(self.dbFileName)) {
+            if (isDbExist()) {
               resolve('Database exist');
               self.testDatabase();
             } else {
@@ -117,6 +110,7 @@
               resolve('Database tested');
               setTimeout(() => {
                 $('#loader-modal').modal('hide');
+                self.$bus.$emit('databaseValidated');
               }, 500);
             });
           }, 1000);

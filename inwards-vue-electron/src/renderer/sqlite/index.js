@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 const sqlite3 = require('sqlite3').verbose();
+const fs = require('fs');
 let db;
 export let dbFilePath = '../../db/inwards_template.sqlite3';
 export let dbUrl = 'http://inwards.award.org.za/db/db_download.php';
@@ -7,6 +8,7 @@ export let dbReady = false;
 
 function conn () {
   if (!db || !db.open) {
+    isDbExist();
     db = new sqlite3.Database(
       dbFilePath, sqlite3.OPEN_READWRITE, (err) => {
         if (err) {
@@ -19,6 +21,18 @@ function conn () {
   }
   return db;
 }
+
+export const isDbExist = () => {
+  let dir = '../../db';
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+  }
+  if (!fs.existsSync(dbFilePath)) {
+    return false;
+  } else {
+    return true;
+  }
+};
 
 export const rawQuery = (query, callback) => {
   let db = conn();

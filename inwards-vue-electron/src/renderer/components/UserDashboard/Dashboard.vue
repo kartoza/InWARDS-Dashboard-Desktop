@@ -125,7 +125,6 @@ export default {
       stateStore.getState(
         stateStore.keys.selectedCharts,
         function (selectedCharts) {
-          console.log(selectedCharts);
           self.currentCharts = Object.assign({}, selectedCharts);
           for (let key in selectedCharts) {
             let ref = `chartComponent-${key}`;

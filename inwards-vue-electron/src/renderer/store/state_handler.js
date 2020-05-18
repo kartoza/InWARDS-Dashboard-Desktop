@@ -8,7 +8,8 @@ const stateStore = {
     selectedCharts: 'selectedCharts',
     dateStart: 'dateStart',
     dateEnd: 'dateEnd',
-    selectedStations: 'selectedStations'
+    selectedStations: 'selectedStations',
+    loginStatus: 'loginStatus'
   },
   state: {},
   print (message) {
