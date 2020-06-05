@@ -36,6 +36,7 @@
 </template>
 <script>
 import stateStore from '../../store/state_handler';
+const { dialog } = require('electron').remote;
 export default {
   name: 'chart-container',
   data () {
@@ -72,9 +73,19 @@ export default {
       // Call when item has been removed from store
     },
     removeFromStore () {
-      if (confirm('Are you sure you want to delete this from your dashboard?')) {
-        this.removed(this.chartId);
-      }
+      const options = {
+        type: 'question',
+        buttons: ['Yes, please', 'No, thanks'],
+        defaultId: 2,
+        title: 'Remove a chart',
+        message: 'Are you sure you want to delete this chart from your dashboard?'
+      };
+
+      dialog.showMessageBox(null, options, (response) => {
+        if (response === 0) {
+          this.removed(this.chartId);
+        }
+      });
     },
     addToStore () {
       let self = this;
@@ -87,7 +98,11 @@ export default {
           if (selectedCharts) {
             console.log(selectedCharts);
             if (selectedCharts.hasOwnProperty(chartStoreId)) {
-              alert('This chart has been already added to user dashboard');
+              dialog.showMessageBox(null, {
+                type: 'warning',
+                message: 'This chart has been already added to user dashboard',
+                buttons: ['Ok']
+              });
               return;
             }
             selectedCharts[chartStoreId] = {
@@ -103,7 +118,11 @@ export default {
               'order': 0
             };
           }
-          alert('Successfully added to user dashboard');
+          dialog.showMessageBox(null, {
+            type: 'info',
+            message: 'Successfully added to user dashboard',
+            buttons: ['Ok']
+          });
           stateStore.setState(stateStore.keys.selectedCharts, selectedCharts);
         }
       );

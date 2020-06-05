@@ -179,6 +179,13 @@ export default {
                 }
                 return item._id;
               }
+            },
+            dragStartPredicate: function (item, event) {
+              let target = $(event.target);
+              if (target.hasClass('inwards_button_group') || target.parent().hasClass('inwards_button_group')) {
+                return false;
+              }
+              return true;
             }
           });
           // Sort the items before the initial layout

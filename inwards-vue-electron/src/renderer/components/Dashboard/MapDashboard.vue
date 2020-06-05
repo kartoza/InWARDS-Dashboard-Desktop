@@ -88,20 +88,6 @@
   import {Circle as CircleStyle, Fill, Stroke, Style} from 'ol/style';
   import Overlay from 'ol/Overlay';
   import * as Extent from 'ol/extent';
-  const PopupComponent = {
-    template: `<p @click="toggleMsg()">Welcome {{ station }}!</p>`,
-    id: '',
-    data () {
-      return {
-        station: 'test2'
-      };
-    },
-    methods: {
-      toggleMsg () {
-        alert(this.station);
-      }
-    }
-  };
   export default {
     data () {
       return {

@@ -14,7 +14,6 @@
     name: 'Header',
     methods: {
       login () {
-        alert('test');
       },
       close () {
         var window = remote.getCurrentWindow();
