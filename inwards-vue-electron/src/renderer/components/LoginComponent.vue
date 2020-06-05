@@ -26,6 +26,7 @@
 import $ from 'jquery';
 import stateStore from '../store/state_handler';
 const { shell } = require('electron');
+const { dialog } = require('electron').remote;
 export default {
   data () {
     return {
@@ -88,11 +89,19 @@ export default {
             'timestamp': Date.now()
           });
           self.loggedIn = true;
-          alert('Successfully Verified!');
+          dialog.showMessageBox(null, {
+            type: 'info',
+            message: 'Successfully Verified!',
+            buttons: ['Ok']
+          });
         } else {
           button.prop('disabled', false);
           button.html(`Submit`);
-          alert('Failed to Verifiy!');
+          dialog.showMessageBox(null, {
+            type: 'error',
+            message: 'Failed to Verifiy!',
+            buttons: ['Ok']
+          });
         }
       });
     }

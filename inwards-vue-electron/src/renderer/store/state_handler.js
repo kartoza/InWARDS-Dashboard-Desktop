@@ -9,7 +9,8 @@ const stateStore = {
     dateStart: 'dateStart',
     dateEnd: 'dateEnd',
     selectedStations: 'selectedStations',
-    loginStatus: 'loginStatus'
+    loginStatus: 'loginStatus',
+    databaseStatus: 'databaseStatus'
   },
   state: {},
   print (message) {
@@ -30,6 +31,7 @@ const stateStore = {
   getState (key, callback) {
     const self = this;
     this.print(`Get state for ${key}`);
+    console.log(JSON.stringify(this.state));
     if (this.state.hasOwnProperty(key)) {
       callback(this.state[key]);
     } else {

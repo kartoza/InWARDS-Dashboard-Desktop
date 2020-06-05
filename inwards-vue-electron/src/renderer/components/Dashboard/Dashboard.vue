@@ -106,6 +106,7 @@
   import stateStore from '../../store/state_handler';
   import StatusBar from '../StatusBar';
   require('promise.prototype.finally').shim();
+  const { dialog } = require('electron').remote;
   
   export default {
     data () {
@@ -195,19 +196,31 @@
       fetchUnverified () {
         const selectedStations = this.mapDashboardRef.getSelectedStations();
         if (selectedStations.length === 0) {
-          alert('Please select at least one station');
+          dialog.showMessageBox(null, {
+            type: 'warning',
+            message: 'Please select at least one station',
+            buttons: ['Ok']
+          });
           return;
         }
         let dateStartString = $('#dateStart').val();
         let dateEndString = $('#dateEnd').val();
         if (!dateStartString || !dateEndString) {
-          alert('Missing start date / end date');
+          dialog.showMessageBox(null, {
+            type: 'warning',
+            message: 'Missing start date / end date',
+            buttons: ['Ok']
+          });
           return;
         }
         let dateStart = new Date(dateStartString);
         let dateEnd = new Date(dateEndString);
         if (dateStart > dateEnd) {
-          alert('End date should be after start date');
+          dialog.showMessageBox(null, {
+            type: 'warning',
+            message: 'End date should be after start date',
+            buttons: ['Ok']
+          });
           return;
         }
         let tsChart = document.getElementById('ts').checked;

@@ -30,6 +30,7 @@
 </style>
 <script>
   import $ from 'jquery';
+  import stateStore from '../store/state_handler';
   import {rawQuery, dbFilePath, dbUrl, isDbExist} from '@/sqlite/index';
   const request = require('request');
   const fs = require('fs');
@@ -41,12 +42,22 @@
     },
     methods: {
       showModal () {
-        let loaderModal = $('#loader-modal');
-        loaderModal.modal({
-          backdrop: 'static',
-          keyboard: false
-        });
-        this.checkDatabaseInLocal();
+        stateStore.getState(
+          stateStore.keys.databaseStatus, (status) => {
+            let databaseValidated = false;
+            if (status && status.hasOwnProperty('databaseValidated')) {
+              databaseValidated = status['databaseValidated'];
+            }
+            if (!databaseValidated) {
+              let loaderModal = $('#loader-modal');
+              loaderModal.modal({
+                backdrop: 'static',
+                keyboard: false
+              });
+              this.checkDatabaseInLocal();
+            }
+          }
+        );
       },
       addStatus (text, promise) {
         $('.modal-content-template').first().clone().appendTo('.loader-modal-body');
@@ -108,6 +119,9 @@
                 return false;
               }
               resolve('Database tested');
+              stateStore.setState(stateStore.keys.databaseStatus, {
+                'databaseValidated': true
+              });
               setTimeout(() => {
                 $('#loader-modal').modal('hide');
                 self.$bus.$emit('databaseValidated');
