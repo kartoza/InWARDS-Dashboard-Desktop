@@ -41,7 +41,6 @@ import $ from 'jquery';
 import LoginComponent from './LoginComponent';
 import DatabaseLoaderComponent from './DatabaseLoaderComponent';
 import {dbReady} from '@/sqlite/index';
-const isOnline = require('is-online');
 export default {
   mounted () {
     if (!dbReady) {
@@ -56,7 +55,7 @@ export default {
     checkOnline () {
       let self = this;
       (async () => {
-        let _isOnline = await isOnline();
+        let _isOnline = navigator.onLine;
         if (_isOnline) {
           $('.online').show();
           $('.offline').hide();
