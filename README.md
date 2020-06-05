@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/kartoza/InWARDS-Dashboard-Desktop.svg?branch=develop)](https://travis-ci.com/kartoza/InWARDS-Dashboard-Desktop)
+![Build/release](https://github.com/kartoza/InWARDS-Dashboard-Desktop/workflows/Build/release/badge.svg)
 
 # Background
 
