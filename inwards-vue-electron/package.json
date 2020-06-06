@@ -1,6 +1,6 @@
 {
   "name": "INWARDS",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "author": "Dimas <dimas.ciputra@gmail.com>",
   "description": "An application written in Electron.js for visualising stream flow conditions",
   "license": "MIT",
@@ -11,7 +11,7 @@
     "build:dir": "node --max-old-space-size=4096 .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node --max-old-space-size=4096 .electron-vue/build.js",
     "build:web": "cross-env BUILD_TARGET=web node --max-old-space-size=4096 .electron-vue/build.js",
-    "dev": "node .electron-vue/dev-runner.js",
+    "dev": "NODE_ENV=develop node .electron-vue/dev-runner.js",
     "e2e": "npm run pack && mocha test/e2e",
     "lint": "eslint --ext .js,.vue -f ./node_modules/eslint-friendly-formatter src test",
     "lint:fix": "eslint --ext .js,.vue -f ./node_modules/eslint-friendly-formatter --fix src test",

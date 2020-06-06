@@ -126,6 +126,13 @@
       stateStore.getState(
         stateStore.keys.selectedWMAs,
         function (selectedWMAs) {
+          console.log(selectedWMAs);
+          if (!selectedWMAs) {
+            return false;
+          }
+          if (selectedWMAs.length === 0) {
+            return false;
+          }
           self.selectedWMAs = selectedWMAs;
           self.mapDashboardRef.showSelectedWMA(selectedWMAs);
           self.fetchStations();
@@ -199,7 +206,7 @@
           dialog.showMessageBox(null, {
             type: 'warning',
             message: 'Please select at least one station',
-            buttons: ['Ok']
+            buttons: ['OK']
           });
           return;
         }
@@ -209,7 +216,7 @@
           dialog.showMessageBox(null, {
             type: 'warning',
             message: 'Missing start date / end date',
-            buttons: ['Ok']
+            buttons: ['OK']
           });
           return;
         }
@@ -219,7 +226,7 @@
           dialog.showMessageBox(null, {
             type: 'warning',
             message: 'End date should be after start date',
-            buttons: ['Ok']
+            buttons: ['OK']
           });
           return;
         }
@@ -361,6 +368,9 @@
         stateStore.getState(
           stateStore.keys.selectedCatchments,
           function (selectedCatchments) {
+            if (!selectedCatchments) {
+              return false;
+            }
             self.catchmentTreeRef.toggleMultipleNodes(selectedCatchments, true);
           }
         );

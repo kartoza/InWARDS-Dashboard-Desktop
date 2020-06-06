@@ -24,7 +24,6 @@
         axios.get(url).then(response => {
           let jsonData = response.data;
           let boxData = [];
-          console.log(boxData);
           setTimeout(() => {
             let layout = {
               title: false,
