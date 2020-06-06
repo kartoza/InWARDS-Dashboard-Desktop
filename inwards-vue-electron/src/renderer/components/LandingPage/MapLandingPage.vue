@@ -51,6 +51,9 @@
           </div>
         </div>
       </div>
+      <div v-if="devMode" class="reset-application-data-container" style="position: absolute; bottom: 0; margin-bottom: 50px; margin-left: 20px;">
+        <div class="btn btn-primary" v-on:click="resetApplicationData">Reset application data</div>
+      </div>
     </div>
 </template>
 <script>
@@ -212,6 +215,9 @@
       stateStore.getState(
         stateStore.keys.selectedWMAs,
         function (selectedWMAs) {
+          if (!selectedWMAs) {
+            return;
+          }
           let features = vectorLayer.getSource().getFeatures();
           for (let i = 0; i < features.length; i++) {
             let feature = features[i];
@@ -262,6 +268,12 @@
       },
       goToUserDefinedDashboard () {
         router.push({ path: 'user-dashboard' });
+      },
+      resetApplicationData (e) {
+        stateStore.clearAll();
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
       }
     },
     components: {

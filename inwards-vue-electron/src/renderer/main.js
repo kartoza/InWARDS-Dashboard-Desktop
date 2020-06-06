@@ -26,6 +26,7 @@ Vue.prototype.$db = db;
 Vue.prototype.$ = $;
 Vue.prototype.$bus = new Vue();
 Vue.prototype.isLoggedIn = false;
+Vue.prototype.devMode = process.env.NODE_ENV === 'development';
 
 /* eslint-disable no-new */
 new Vue({

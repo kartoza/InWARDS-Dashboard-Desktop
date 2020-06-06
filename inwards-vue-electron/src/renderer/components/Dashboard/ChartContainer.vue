@@ -101,7 +101,7 @@ export default {
               dialog.showMessageBox(null, {
                 type: 'warning',
                 message: 'This chart has been already added to user dashboard',
-                buttons: ['Ok']
+                buttons: ['OK']
               });
               return;
             }
@@ -121,7 +121,7 @@ export default {
           dialog.showMessageBox(null, {
             type: 'info',
             message: 'Successfully added to user dashboard',
-            buttons: ['Ok']
+            buttons: ['OK']
           });
           stateStore.setState(stateStore.keys.selectedCharts, selectedCharts);
         }

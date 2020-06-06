@@ -42,6 +42,7 @@
     },
     methods: {
       showModal () {
+        let self = this;
         stateStore.getState(
           stateStore.keys.databaseStatus, (status) => {
             let databaseValidated = false;
@@ -55,6 +56,8 @@
                 keyboard: false
               });
               this.checkDatabaseInLocal();
+            } else {
+              self.$bus.$emit('databaseValidated');
             }
           }
         );
@@ -121,7 +124,7 @@
               resolve('Database tested');
               stateStore.setState(stateStore.keys.databaseStatus, {
                 'databaseValidated': true
-              });
+              }, false);
               setTimeout(() => {
                 $('#loader-modal').modal('hide');
                 self.$bus.$emit('databaseValidated');

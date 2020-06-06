@@ -87,12 +87,17 @@ export default {
             'emailAddress': self.emailAddress,
             'uniqueCode': self.uniqueCode,
             'timestamp': Date.now()
-          });
+          }, false);
           self.loggedIn = true;
           dialog.showMessageBox(null, {
             type: 'info',
             message: 'Successfully Verified!',
-            buttons: ['Ok']
+            buttons: ['OK']
+          });
+          stateStore.updateFromServer(() => {
+            setTimeout(function () {
+              window.location.reload();
+            }, 200);
           });
         } else {
           button.prop('disabled', false);
@@ -100,7 +105,7 @@ export default {
           dialog.showMessageBox(null, {
             type: 'error',
             message: 'Failed to Verifiy!',
-            buttons: ['Ok']
+            buttons: ['OK']
           });
         }
       });

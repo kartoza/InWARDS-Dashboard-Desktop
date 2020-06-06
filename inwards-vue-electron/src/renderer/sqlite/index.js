@@ -1,8 +1,10 @@
 /* eslint-disable no-unused-vars */
+import { remote } from 'electron';
+import path from 'path';
 const sqlite3 = require('sqlite3').verbose();
 const fs = require('fs');
 let db;
-export let dbFilePath = '../../db/inwards_template.sqlite3';
+export let dbFilePath = path.join(remote.app.getPath('userData'), '/inwards_template.sqlite3');
 export let dbUrl = 'http://inwards.award.org.za/db/db_download.php';
 export let dbReady = false;
 
@@ -23,10 +25,6 @@ function conn () {
 }
 
 export const isDbExist = () => {
-  let dir = '../../db';
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir);
-  }
   if (!fs.existsSync(dbFilePath)) {
     return false;
   } else {
