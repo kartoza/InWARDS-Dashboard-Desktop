@@ -126,7 +126,6 @@
       stateStore.getState(
         stateStore.keys.selectedWMAs,
         function (selectedWMAs) {
-          console.log(selectedWMAs);
           if (!selectedWMAs) {
             return false;
           }
