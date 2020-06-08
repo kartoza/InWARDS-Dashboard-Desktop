@@ -70,7 +70,7 @@ export default {
   },
   methods: {
     removed () {
-      // Call when item has been removed from store
+      // Called when item has been removed from store
     },
     removeFromStore () {
       const options = {
@@ -96,7 +96,6 @@ export default {
         stateStore.keys.selectedCharts,
         function (selectedCharts) {
           if (selectedCharts) {
-            console.log(selectedCharts);
             if (selectedCharts.hasOwnProperty(chartStoreId)) {
               dialog.showMessageBox(null, {
                 type: 'warning',

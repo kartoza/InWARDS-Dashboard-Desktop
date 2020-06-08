@@ -30,8 +30,9 @@
         let chartTitle = $(this.$el).find('.chart-title');
         chartTitle.html('Gauging station:' + stations[0]);
         let div = $(`#${this.chartId}`);
-        let img = $('<img style="width: 100%; heigth: 100%">');
+        let img = $('<img style="height: 100%; display: block; margin: auto;">');
         div.html(img);
+        div.css('background', 'rgba(222, 226, 230, 0.41)');
         img.attr('src', 'http://inwards.award.org.za/images/' + stations[0].substring(0, 6) + '.jpg');
       }
     }

@@ -105,8 +105,9 @@
   import $ from 'jquery';
   import stateStore from '../../store/state_handler';
   import StatusBar from '../StatusBar';
+  import path from 'path';
   require('promise.prototype.finally').shim();
-  const { dialog } = require('electron').remote;
+  const { dialog, app } = require('electron').remote;
   
   export default {
     data () {
@@ -247,7 +248,7 @@
         let self = this;
         let wmaNames = Object.assign([], self.selectedWMAs);
         let fs = require('fs');
-        let dir = '../../media';
+        let dir = path.join(app.getPath('userData'), '/stations');
         // TODO : Create an util class for file storage
         if (!fs.existsSync(dir)) {
           fs.mkdirSync(dir);
@@ -271,7 +272,6 @@
             cancelToken = self.stationsRequest.token;
           }
           axios.get(url, { cancelToken: cancelToken }).then(response => {
-            console.log(response.data);
             self.mapDashboardRef.loadStationsToMap(response.data);
             self.createCatchmentTree(response.data);
             fs.writeFileSync(stationFile, JSON.stringify(response.data));
