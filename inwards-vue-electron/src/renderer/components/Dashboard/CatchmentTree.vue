@@ -53,7 +53,10 @@
           return false;
         }
         $jsTreeDiv.jstree(nodeBehaviour, node);
-        $jsTreeDiv.jstree(true).get_node(node, true).children('.jstree-anchor').focus();
+        let nodes = $jsTreeDiv.jstree(true).get_node(node, true);
+        if (nodes) {
+          nodes.children('.jstree-anchor').focus();
+        }
       },
       expandAll () {
         let $jsTreeDiv = $('#jstree-div');

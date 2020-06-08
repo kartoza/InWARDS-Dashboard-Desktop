@@ -65,7 +65,6 @@
   import VectorSource from 'ol/source/Vector';
   import GeoJSON from 'ol/format/GeoJSON';
   import {Fill, Stroke, Style} from 'ol/style';
-  import knpJson from '@/assets/knp.json';
   import WmaJson from '@/assets/wma_merge.json';
   import Header from '@/components/Header';
   import $ from 'jquery';
@@ -97,18 +96,6 @@
           zoom: 2
         })
       });
-      let knpLayer = new VectorLayer({
-        source: new VectorSource({
-          features: (new GeoJSON({
-            defaultDataProjection: 'EPSG:4326'
-          })).readFeatures(knpJson, {
-            dataProjection: 'EPSG:4326',
-            featureProjection: 'EPSG:3857'
-          })
-        }),
-        updateWhileAnimating: true,
-        updateWhileInteracting: true
-      });
       let vectorLayer = new VectorLayer({
         source: new VectorSource({
           features: (new GeoJSON({
@@ -134,20 +121,9 @@
         zIndex: 1
       });
       let highlightedFeature = null;
-      map.addLayer(knpLayer);
-      let knpStyle = new Style({
-        stroke: new Stroke({
-          color: [51, 204, 51, 0.6],
-          width: 1
-        }),
-        fill: new Fill({
-          color: [51, 204, 51, 0.2]
-        }),
-        zIndex: 1
-      });
-      knpLayer.setStyle(knpStyle);
       map.addLayer(vectorLayer);
       map.getView().fit(vectorLayer.getSource().getExtent());
+      // Map on hover
       map.on('pointermove', function (e) {
         if (highlightedFeature !== null && !self.selectedFeatures.hasOwnProperty(highlightedFeature.ol_uid)) {
           highlightedFeature.setStyle(undefined);
@@ -173,7 +149,6 @@
         zIndex: 1
       });
       document.getElementById('limpopo').addEventListener('change', function (element) {
-        console.log(document.getElementById('limpopo').checked);
         let check = document.getElementById('limpopo').checked;
         let features = vectorLayer.getSource().getFeatures();
         let feature = features[0];
@@ -186,7 +161,6 @@
         }
       });
       document.getElementById('olifants_letaba').addEventListener('change', function (element) {
-        console.log(document.getElementById('olifants_letaba').checked);
         let check = document.getElementById('olifants_letaba').checked;
         let features = vectorLayer.getSource().getFeatures();
         let feature = features[1];
@@ -199,7 +173,6 @@
         }
       });
       document.getElementById('inkomati_usuthu').addEventListener('change', function (element) {
-        console.log(document.getElementById('inkomati_usuthu').checked);
         let check = document.getElementById('inkomati_usuthu').checked;
         let features = vectorLayer.getSource().getFeatures();
         let feature = features[2];
@@ -236,7 +209,6 @@
         // Check if there is a feature
         map.forEachFeatureAtPixel(e.pixel, function (feature, layer) {
           if (!self.selectedFeatures.hasOwnProperty(feature.ol_uid)) {
-            console.log(feature.values_.wma);
             let check = feature.values_.wma;
             document.getElementById(check).checked = true;
             self.selectedFeatures[feature.ol_uid] = feature;
@@ -274,6 +246,33 @@
         setTimeout(() => {
           window.location.reload();
         }, 500);
+      },
+      addKnpLayer (map) {
+        const knpJson = require('@/assets/knp.json');
+        let knpLayer = new VectorLayer({
+          source: new VectorSource({
+            features: (new GeoJSON({
+              defaultDataProjection: 'EPSG:4326'
+            })).readFeatures(knpJson, {
+              dataProjection: 'EPSG:4326',
+              featureProjection: 'EPSG:3857'
+            })
+          }),
+          updateWhileAnimating: true,
+          updateWhileInteracting: true
+        });
+        map.addLayer(knpLayer);
+        let knpStyle = new Style({
+          stroke: new Stroke({
+            color: [51, 204, 51, 0.6],
+            width: 1
+          }),
+          fill: new Fill({
+            color: [51, 204, 51, 0.2]
+          }),
+          zIndex: 1
+        });
+        knpLayer.setStyle(knpStyle);
       }
     },
     components: {

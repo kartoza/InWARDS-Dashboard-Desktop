@@ -16,7 +16,7 @@
           <MapDashboard ref="mapDashboard"/>
           <div class="v-space"></div>
         </div>
-        <div class="col-md-9 no-float" style="background: #1E1E1E;">
+        <div class="col-md-9 no-float muuri-container" style="background: #1E1E1E;">
           <div class="grid row"></div>
         </div>
       </div>
@@ -27,13 +27,19 @@
 .grid {
   position: relative;
 }
+.muuri-container {
+  overflow-y: auto;
+  padding-top: 20px;
+  margin-bottom: 20px;
+}
 .item {
   display: block;
   position: absolute;
   margin: 0;
   z-index: 1;
-  width: 48%;
-  height: 500px;
+  width: 49%;
+  min-height: 480px;
+  padding-right: 0;
 }
 .item.muuri-item-dragging {
   z-index: 3;
@@ -63,6 +69,7 @@ import $ from 'jquery';
 import Muuri from 'muuri';
 import Vue from 'vue';
 import StatusBar from '../StatusBar';
+const { getCurrentWindow } = require('electron').remote;
 
 export default {
   data () {
@@ -230,8 +237,8 @@ export default {
       delete this.currentCharts[itemId];
       stateStore.setState(stateStore.keys.selectedCharts, this.currentCharts);
       setTimeout(function () {
-        window.location.reload();
-      }, 500);
+        getCurrentWindow().reload();
+      }, 200);
     },
     generateTreeData (dictionary) {
       let treeData = [];

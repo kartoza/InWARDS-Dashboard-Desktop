@@ -14,7 +14,8 @@ let mainConfig = {
   },
   externals: [
     'sqlite3',
-    ...Object.keys(dependencies || {})
+    ...Object.keys(dependencies || {}),
+    {'electron-debug': 'electron-debug'}
   ],
   module: {
     rules: [

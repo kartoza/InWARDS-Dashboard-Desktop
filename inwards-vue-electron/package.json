@@ -1,13 +1,13 @@
 {
   "name": "INWARDS",
-  "version": "0.1.0",
+  "version": "0.5.0",
   "author": "Dimas <dimas.ciputra@gmail.com>",
   "description": "An application written in Electron.js for visualising stream flow conditions",
   "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
     "rebuild": "./node_modules/.bin/electron-rebuild",
-    "build": "node --max-old-space-size=4096 .electron-vue/build.js && electron-builder",
+    "build": "node --max-old-space-size=4096 .electron-vue/build.js && electron-builder -c.snap.publish=github",
     "build:dir": "node --max-old-space-size=4096 .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node --max-old-space-size=4096 .electron-vue/build.js",
     "build:web": "cross-env BUILD_TARGET=web node --max-old-space-size=4096 .electron-vue/build.js",
