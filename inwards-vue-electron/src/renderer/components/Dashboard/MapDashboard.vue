@@ -222,7 +222,6 @@
         this.map.getView().fit(this.defaultExtent);
       },
       loadStationsToMap (stationsGeoJSONData) {
-        console.log(stationsGeoJSONData);
         this.stationsVectorLayer.setSource(new VectorSource({
           features: (new GeoJSON({
             defaultDataProjection: 'EPSG:4326'

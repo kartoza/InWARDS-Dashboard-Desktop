@@ -6,6 +6,7 @@
     data () {
       return {
         chartId: 'station',
+        chartDivId: 'station',
         chartTitle: 'Gauging station: ',
         errored: false,
         loading: true,
@@ -22,14 +23,14 @@
         this.loading = false;
         let self = this;
         this.styleObject.display = 'block';
-        if (!document.getElementById(this.chartId)) {
+        if (!document.getElementById(this.chartDivId)) {
           setTimeout(function () {
             self.displayChart(stations, sd, ed);
           }, 1000);
         }
         let chartTitle = $(this.$el).find('.chart-title');
         chartTitle.html('Gauging station:' + stations[0]);
-        let div = $(`#${this.chartId}`);
+        let div = $(`#${this.chartDivId}`);
         let img = $('<img style="height: 100%; display: block; margin: auto;">');
         div.html(img);
         div.css('background', 'rgba(222, 226, 230, 0.41)');
