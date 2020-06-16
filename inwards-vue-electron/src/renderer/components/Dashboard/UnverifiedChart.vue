@@ -18,20 +18,21 @@
     methods: {
       fetchChartData () {
         let self = this;
-        console.log('Fetching...');
         this.loading = true;
-        const url = `${this.baseUrl}?${this.dictToUri(this.urlParameters)}`;
         if (!self.mounted) {
           setTimeout(function () {
             self.fetchChartData();
           }, 1000);
+          return;
         }
+        console.log('Fetching Unverified Chart...');
+        const url = `${this.baseUrl}?${this.dictToUri(this.urlParameters)}`;
         axios.get(url).then(response => {
           let chartData = response.data;
           self.chartUrl = url;
           setTimeout(() => {
             c3.generate({
-              bindto: '#' + self.chartId,
+              bindto: '#' + self.chartDivId,
               data: chartData,
               zoom: {
                 enabled: true,

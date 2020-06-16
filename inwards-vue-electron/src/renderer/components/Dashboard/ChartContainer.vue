@@ -28,7 +28,7 @@
       <section v-else style="height: 100%;">
         <div v-if='loading'>Loading...</div>
         <div v-else style="height: 100%">
-          <div :id="chartId" style="height: 100%;">Loading...</div>
+          <div :id="chartDivId" style="height: 100%;">Loading...</div>
         </div>
       </section>
     </div>
@@ -42,6 +42,7 @@ export default {
   data () {
     return {
       chartId: null,
+      chartDivId: null,
       chartUrl: '',
       deletable: false,
       mounted: false,
@@ -90,7 +91,7 @@ export default {
     addToStore () {
       let self = this;
       let stations = this.urlParameters['stations'];
-      let chartStoreId = self.chartId + '-' + stations.join(',');
+      let chartStoreId = self.chartId + '-' + stations.join('-');
       self.$bus.$emit('addStationsToStore', stations, chartStoreId);
       stateStore.getState(
         stateStore.keys.selectedCharts,
@@ -136,6 +137,8 @@ export default {
       this.urlParameters.sd = sd;
       this.urlParameters.ed = ed;
       this.urlParameters.type = type;
+      this.chartId = this.chartId;
+      this.chartDivId = this.chartId.replace(/,/g, '-');
       this.fetchChartData();
     }
   }

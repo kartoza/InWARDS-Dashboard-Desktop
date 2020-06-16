@@ -16,7 +16,6 @@
     },
     methods: {
       fetchChartData () {
-        console.log('Fetching...');
         let self = this;
         this.loading = true;
         const url = `${this.baseUrl}?${this.dictToUri(this.urlParameters)}`;
@@ -24,12 +23,14 @@
           setTimeout(function () {
             self.fetchChartData();
           }, 1000);
+          return;
         }
+        console.log('Fetching Duration Curve...');
         axios.get(url).then(response => {
           let durationData = response.data;
           setTimeout(() => {
             c3.generate({
-              bindto: '#' + self.chartId,
+              bindto: '#' + self.chartDivId,
               data: durationData,
               axis: {
                 x: {

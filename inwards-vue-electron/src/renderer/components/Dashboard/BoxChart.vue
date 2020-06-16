@@ -54,8 +54,8 @@
             for (let variable in jsonData) {
               boxData.push(jsonData[variable]);
             }
-            document.getElementById(self.chartId).innerHTML = '';
-            Plotly.newPlot(self.chartId, boxData, layout, {displayModeBar: false});
+            document.getElementById(self.chartDivId).innerHTML = '';
+            Plotly.newPlot(self.chartDivId, boxData, layout, {displayModeBar: false});
           }, 1000);
         }).catch(error => {
           console.log(error);

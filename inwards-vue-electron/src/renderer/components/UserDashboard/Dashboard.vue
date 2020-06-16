@@ -82,7 +82,8 @@ export default {
       },
       currentCharts: {},
       grid: null,
-      currentStations: {}
+      currentStations: {},
+      stationsFromStoredCharts: []
     };
   },
   components: {
@@ -97,7 +98,6 @@ export default {
     this.catchmentTreeRef.refreshable = false;
     this.mapDashboardRef.connectedToTree = false;
     this.getSelectedCharts();
-    this.getStations();
   },
   methods: {
     backToMapSelect () {
@@ -105,6 +105,7 @@ export default {
     },
     getStations () {
       let self = this;
+      let stationsChanged = false;
       stateStore.getState(
         stateStore.keys.selectedStations,
         function (selectedStations) {
@@ -114,7 +115,12 @@ export default {
           self.currentStations = Object.assign({}, selectedStations);
           let features = [];
           for (let key in selectedStations) {
-            features.push(selectedStations[key]['feature']);
+            if (self.stationsFromStoredCharts.indexOf(key) === -1) {
+              delete self.currentStations[key];
+              stationsChanged = true;
+            } else {
+              features.push(selectedStations[key]['feature']);
+            }
           }
           let featureCollection = {
             'type': 'FeatureCollection',
@@ -122,6 +128,9 @@ export default {
           };
           self.mapDashboardRef.loadStationsToMap(featureCollection);
           self.createCatchmentTree(featureCollection);
+          if (stationsChanged) {
+            stateStore.setState(stateStore.keys.selectedStations, self.currentStations, true).then(() => console.log('Ok'));
+          }
         }
       );
     },
@@ -146,6 +155,11 @@ export default {
             if (stations.length < 1) {
               continue;
             }
+            for (let s = 0; s < stations.length; s++) {
+              if (self.stationsFromStoredCharts.indexOf(stations[s]) === -1) {
+                self.stationsFromStoredCharts.push(stations[s]);
+              }
+            }
             let ChartComponent = Vue.extend(self.charts[chartId]);
             let chart = new ChartComponent({
               data: {
@@ -165,6 +179,7 @@ export default {
             );
             chart.removed = self.itemRemoved;
           }
+          self.getStations();
           // Make the grid draggable and sortable
           self.grid = new Muuri('.grid', {
             dragEnabled: true,
@@ -212,33 +227,18 @@ export default {
       }
       stateStore.setState(stateStore.keys.selectedCharts, this.currentCharts);
     },
-    itemRemoved (itemId) {
+    async itemRemoved (itemId) {
       itemId = itemId.replace('chartComponent-', '');
-      this.grid.remove(this.currentCharts[itemId]['order'], {removeElements: true});
       let items = this.grid.getItems();
       for (let i = 0; i < items.length; i++) {
         let key = items[i].getElement().children[0].dataset.key;
         this.currentCharts[key]['order'] = i;
       }
-      // -- Remove from station list
-      let stationId = itemId.split('-');
-      stationId = stationId[stationId.length - 1];
-      let station = this.currentStations[stationId];
-      if (station && station.hasOwnProperty('chartStored')) {
-        let stationIndex = station['chartStored'].indexOf(itemId);
-        if (stationIndex > -1) {
-          this.currentStations[stationId]['chartStored'].splice(stationIndex, 1);
-        }
-        if (station['chartStored'].length === 0) {
-          delete this.currentStations[stationId];
-        }
-        stateStore.setState(stateStore.keys.selectedStations, this.currentStations);
-      }
+      let currentChart = this.currentCharts[itemId];
+      this.grid.remove(currentChart['order'], {removeElements: true});
       delete this.currentCharts[itemId];
-      stateStore.setState(stateStore.keys.selectedCharts, this.currentCharts);
-      setTimeout(function () {
-        getCurrentWindow().reload();
-      }, 200);
+      await stateStore.setState(stateStore.keys.selectedCharts, this.currentCharts);
+      getCurrentWindow().reload();
     },
     generateTreeData (dictionary) {
       let treeData = [];

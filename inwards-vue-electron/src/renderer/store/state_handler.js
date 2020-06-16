@@ -33,20 +33,22 @@ const stateStore = {
       console.log(message);
     }
   },
-  setState (key, newValue, uploadToServer = true) {
+  async setState (key, newValue, uploadToServer = true) {
     const self = this;
     this.print(`Set state ${key} to ${JSON.stringify(newValue)}`);
     this.state[key] = newValue;
     this.state[TIMESTAMP] = Date.now();
-    db.update({ type: 'user_states' }, {
-      $set: self.state
-    }, {
-      upsert: true
-    }, function (err, docs) {
-      console.log(err, docs);
-      if (uploadToServer) {
-        self.uploadToServer();
-      }
+    return new Promise(resolve => {
+      db.update({ type: 'user_states' }, {
+        $set: self.state
+      }, {
+        upsert: true
+      }, function (err, docs) {
+        console.log(err, docs);
+        if (uploadToServer) {
+          self.uploadToServer(() => resolve('Resolved'));
+        }
+      });
     });
   },
   getState (key, callback) {
@@ -94,7 +96,7 @@ const stateStore = {
       self.state = {};
     });
   },
-  uploadToServer () {
+  uploadToServer (callback = null) {
     // Upload user state to server
     let dataToUpload = {};
     if (!this.state.hasOwnProperty(this.keys.loginStatus)) {
@@ -106,6 +108,9 @@ const stateStore = {
     let url = `http://inwards.award.org.za/user_data/backup.php?user_code=${this.state[this.keys.loginStatus]['uniqueCode']}&json=${JSON.stringify(dataToUpload)}`;
     axios.get(url).then(response => {
       console.log('User states in server has been updated');
+      if (callback) {
+        callback();
+      }
     });
   },
   updateFromServer (callback) {
